@@ -1,0 +1,1347 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>캡스톤 최종 발표 · 분석 인사이트 v7</title>
+<style>
+:root {
+  --navy:#10233F; --navy2:#183B66; --mint:#12B7A3; --mint2:#D9F7F1; --amber:#F2A541; --rose:#EF6A6A;
+  --ink:#172033; --muted:#687386; --paper:#FBFAF7; --card:#FFFFFF; --line:#E7EAF0; --shadow:0 18px 50px rgba(14,35,67,.15);
+  --grad: radial-gradient(circle at 5% 5%, rgba(18,183,163,.18), transparent 30%), radial-gradient(circle at 90% 18%, rgba(242,165,65,.13), transparent 26%), linear-gradient(135deg,#f9fbff 0%,#f2f7fb 52%,#edf8f5 100%);
+}
+* { box-sizing:border-box; }
+body { margin:0; font-family:'Pretendard','Noto Sans KR','Apple SD Gothic Neo','Segoe UI',sans-serif; background:#0b1628; color:var(--ink); overflow:hidden; }
+.deck { width:100vw; height:100vh; position:relative; }
+.slide { position:absolute; inset:0; padding:24px; display:none; background:var(--grad); }
+.slide.active { display:block; animation:fadeIn .28s ease; }
+@keyframes fadeIn { from{opacity:.25; transform:translateY(8px)} to{opacity:1; transform:none} }
+.slide-inner { height:100%; max-width:1500px; margin:0 auto; border-radius:26px; background:rgba(255,255,255,.86); backdrop-filter:blur(14px); box-shadow:var(--shadow); padding:30px 40px 72px; position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.82); }
+.slide-inner:before { content:''; position:absolute; right:-120px; top:-140px; width:430px; height:430px; background:radial-gradient(circle, rgba(18,183,163,.16), transparent 65%); pointer-events:none; }
+.slide-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; position:relative; z-index:2; }
+.eyebrow { font-size:14px; font-weight:900; color:var(--mint); letter-spacing:.08em; text-transform:uppercase; }
+.slide-count { color:#8b95a6; font-weight:800; font-size:14px; }
+h1 { margin:0; font-size:42px; line-height:1.12; letter-spacing:-.04em; color:var(--navy); max-width:1120px; position:relative; z-index:2; }
+.subtitle { margin:12px 0 22px; font-size:19px; line-height:1.48; color:#556070; max-width:1120px; position:relative; z-index:2; }
+.content { position:relative; z-index:2; font-size:17px; line-height:1.55; }
+button { font-family:inherit; }
+a { color:inherit; text-decoration:none; }
+.controls { position:fixed; top:18px; right:22px; display:flex; gap:8px; z-index:50; }
+.ctrl { border:1px solid rgba(255,255,255,.25); background:rgba(14,35,67,.7); color:white; padding:9px 13px; border-radius:999px; font-weight:800; cursor:pointer; backdrop-filter:blur(10px); }
+.ctrl:hover { background:rgba(18,183,163,.9); }
+.home-control { position:fixed; top:18px; left:22px; z-index:50; border:1px solid rgba(255,255,255,.28); background:rgba(14,35,67,.72); color:white; padding:9px 15px; border-radius:999px; font-weight:900; cursor:pointer; backdrop-filter:blur(10px); box-shadow:0 10px 24px rgba(16,35,63,.18); }
+.home-control:hover { background:rgba(18,183,163,.92); }
+.home-control:focus-visible, .ctrl:focus-visible, .nav-arrows button:focus-visible, .dot:focus-visible { outline:3px solid rgba(242,165,65,.75); outline-offset:3px; }
+.progress { position:fixed; left:0; top:0; height:5px; background:linear-gradient(90deg,var(--mint),var(--amber)); width:0; z-index:60; transition:width .25s ease; }
+.nav-arrows { position:fixed; right:22px; bottom:24px; display:flex; gap:10px; z-index:55; }
+.nav-arrows button { width:44px; height:44px; border-radius:50%; border:0; background:rgba(14,35,67,.88); color:white; font-size:22px; cursor:pointer; }
+.dots { position:fixed; right:20px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:7px; z-index:40; }
+.dot { width:9px; height:9px; border-radius:50%; border:0; background:rgba(16,35,63,.28); cursor:pointer; }
+.dot.active { background:var(--mint); transform:scale(1.35); }
+.insight-btn { position:absolute; left:40px; bottom:24px; border:0; background:#10233F; color:white; border-radius:999px; padding:11px 18px; font-weight:900; cursor:pointer; box-shadow:0 10px 24px rgba(16,35,63,.2); z-index:4; }
+.insight-btn:before { content:'💡 '; }
+.insight-sheet { position:fixed; left:50%; bottom:22px; transform:translate(-50%, 140%); width:min(1050px, calc(100vw - 56px)); background:rgba(16,35,63,.88); color:white; border:1px solid rgba(255,255,255,.22); border-radius:24px; box-shadow:0 22px 60px rgba(0,0,0,.28); padding:18px 22px 18px 24px; z-index:80; transition:transform .28s ease; backdrop-filter:blur(16px); }
+.insight-sheet.open { transform:translate(-50%, 0); }
+.insight-sheet .bubble-tail { position:absolute; left:62px; bottom:-13px; width:26px; height:26px; background:rgba(16,35,63,.88); transform:rotate(45deg); border-right:1px solid rgba(255,255,255,.18); border-bottom:1px solid rgba(255,255,255,.18); }
+.insight-sheet h3 { margin:0 0 8px; font-size:18px; color:#BFF4EA; }
+.insight-sheet p { margin:0; font-size:17px; line-height:1.55; padding-right:40px; }
+.insight-sheet button { position:absolute; right:16px; top:14px; border:0; background:rgba(255,255,255,.12); color:white; border-radius:50%; width:30px; height:30px; cursor:pointer; }
+.drawer { position:fixed; top:0; right:0; width:min(520px, 92vw); height:100vh; background:rgba(255,255,255,.97); box-shadow:-20px 0 55px rgba(0,0,0,.22); z-index:90; transform:translateX(110%); transition:transform .25s ease; padding:28px; overflow:auto; }
+.drawer.open { transform:translateX(0); }
+.drawer h2 { margin:0 0 14px; color:var(--navy); }
+.drawer .term { padding:14px 0; border-bottom:1px solid var(--line); }
+.drawer .term b { color:var(--navy); display:block; margin-bottom:6px; }
+.drawer .term p { margin:0; color:#546070; line-height:1.5; }
+.drawer .close-drawer { position:absolute; right:20px; top:18px; border:0; background:#eef2f6; width:34px; height:34px; border-radius:50%; cursor:pointer; }
+.outline { position:fixed; inset:0; background:rgba(11,22,40,.76); z-index:85; display:none; align-items:center; justify-content:center; padding:34px; }
+.outline.open { display:flex; }
+.outline-panel { background:white; width:min(950px, 94vw); max-height:86vh; overflow:auto; border-radius:26px; padding:28px; box-shadow:var(--shadow); }
+.outline-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.outline-head h2 { margin:0; color:var(--navy); }
+.outline-head button { border:0; background:#eef2f6; width:34px; height:34px; border-radius:50%; cursor:pointer; }
+.outline-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.jump { border:1px solid var(--line); background:#fbfcfe; border-radius:16px; padding:14px; text-align:left; cursor:pointer; font-weight:800; color:#1b2c46; display:flex; gap:10px; align-items:center; }
+.jump span { color:var(--mint); min-width:34px; }
+.jump:hover { border-color:var(--mint); background:#f1fffb; }
+.hero-grid { display:grid; grid-template-columns:1.38fr .82fr; gap:26px; align-items:stretch; }
+.question-card, .panel, .diagram-card, .callout, .quote-card { background:var(--card); border:1px solid var(--line); border-radius:22px; box-shadow:0 10px 24px rgba(16,35,63,.08); padding:24px; }
+.main-question { min-height:340px; display:flex; flex-direction:column; justify-content:center; background:linear-gradient(135deg,#10233F,#173A65); color:white; }
+.q-label { display:inline-flex; align-items:center; width:max-content; font-size:13px; font-weight:900; color:var(--mint); background:rgba(18,183,163,.14); padding:6px 10px; border-radius:999px; margin-bottom:14px; }
+.main-question h2 { font-size:44px; line-height:1.18; margin:0 0 16px; letter-spacing:-.04em; }
+.main-question p { color:#dbe9f2; font-size:18px; line-height:1.55; max-width:720px; }
+.mini-timeline { margin-top:18px; display:flex; align-items:center; gap:10px; color:#596779; font-weight:900; }
+.mini-timeline b { flex:1; height:3px; background:linear-gradient(90deg,var(--mint),var(--amber)); border-radius:8px; }
+.hero-right { display:flex; flex-direction:column; gap:16px; }
+.big-metric { background:white; border-radius:24px; border:1px solid var(--line); padding:30px; min-height:230px; display:flex; flex-direction:column; justify-content:center; box-shadow:0 12px 28px rgba(16,35,63,.08); }
+.big-metric em, .data-card span, .stat-card em { font-style:normal; color:#697589; font-weight:900; font-size:14px; text-transform:uppercase; }
+.big-metric strong { font-size:72px; color:var(--mint); line-height:.98; letter-spacing:-.05em; }
+.big-metric span { color:#526071; font-weight:800; }
+.metric-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.metric-row div, .stat-card { background:#fff; border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 10px 20px rgba(16,35,63,.06); }
+.metric-row strong, .stat-card strong { display:block; font-size:28px; color:var(--navy); margin-top:7px; }
+.bottom-statement { margin-top:20px; background:rgba(18,183,163,.12); border:1px solid rgba(18,183,163,.28); border-radius:18px; padding:18px 20px; font-size:20px; color:#17334f; }
+.bottom-statement.small { font-size:18px; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:start; }
+.two-col.wide-left { grid-template-columns:1.25fr .75fr; }
+.two-col.compact { gap:18px; }
+.two-col.balanced { align-items:stretch; }
+.clean-list { margin:0; padding-left:20px; }
+.clean-list li { margin:12px 0; }
+.formula-box { font-family:'Consolas','Menlo',monospace; background:#0E2343; color:#ECF8FF; border-radius:18px; padding:22px; font-size:22px; line-height:1.7; box-shadow:inset 0 0 0 1px rgba(255,255,255,.08); }
+.formula-box.small { font-size:18px; padding:16px; }
+.note { color:#606c7c; }
+.story-strip { display:grid; grid-template-columns:1fr 38px 1fr 38px 1fr 38px 1fr; gap:0; align-items:center; margin-top:14px; }
+.story-step { background:white; border:1px solid var(--line); border-radius:22px; padding:18px; min-height:140px; box-shadow:0 10px 20px rgba(16,35,63,.08); }
+.story-step.active { border-color:var(--mint); background:#f2fffb; }
+.story-step b { display:inline-grid; place-items:center; width:38px; height:38px; border-radius:12px; background:var(--navy); color:white; margin-bottom:12px; }
+.story-step span { display:block; color:var(--mint); font-weight:900; font-size:18px; }
+.story-step p { margin:8px 0 0; color:#536070; }
+.story-arrow { height:4px; background:linear-gradient(90deg,var(--mint),var(--amber)); position:relative; }
+.story-arrow:after { content:''; position:absolute; right:-1px; top:50%; transform:translateY(-50%); border-left:10px solid var(--amber); border-top:7px solid transparent; border-bottom:7px solid transparent; }
+.data-layout { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.data-card { background:#fff; border:1px solid var(--line); border-radius:22px; padding:22px; box-shadow:0 10px 22px rgba(16,35,63,.07); }
+.data-card.primary { background:linear-gradient(135deg,#0E2343,#173A65); color:white; }
+.data-card strong { display:block; font-size:44px; color:var(--navy); margin:6px 0 4px; }
+.data-card.primary strong { color:white; }
+.data-card em { color:#718095; font-style:normal; }
+.data-card.primary em { color:#d5e5f1; }
+.chip-board { margin:18px 0; background:white; border:1px solid var(--line); border-radius:22px; padding:18px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.chip-title { font-weight:900; color:var(--navy); margin-right:8px; }
+.chip-board span { padding:9px 13px; border-radius:999px; background:#eef8f6; color:#0b7469; font-weight:900; }
+.chip-board span.empty { background:#fff0e1; color:#9c5b00; }
+.tight-table { width:100%; border-collapse:separate; border-spacing:0; background:white; border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 8px 18px rgba(16,35,63,.06); }
+.tight-table th { background:#10233F; color:white; font-size:15px; padding:12px; text-align:left; }
+.tight-table td { padding:11px 12px; border-top:1px solid var(--line); font-size:15px; vertical-align:middle; }
+.tight-table tr:nth-child(even) td { background:#f7f9fc; }
+.emphasize-first tbody tr:first-child td { background:#f1fffb; font-weight:900; }
+.callout { font-size:17px; line-height:1.55; }
+.callout.soft { background:#f8fbff; }
+.callout.amber { background:#fff8ec; border-color:#f5d7aa; }
+.callout.mint { background:#effffb; border-color:#aee8dd; }
+.question-stack { display:grid; gap:14px; }
+.question-bubble { background:white; border:1px solid var(--line); border-radius:22px; padding:22px; font-weight:900; color:var(--navy); box-shadow:0 10px 20px rgba(16,35,63,.08); }
+.question-bubble span { display:inline-grid; place-items:center; width:36px; height:36px; border-radius:12px; background:var(--mint); color:white; margin-right:12px; }
+.roadmap-svg-wrap { background:white; border:1px solid var(--line); border-radius:24px; padding:18px; box-shadow:0 10px 24px rgba(16,35,63,.07); }
+.roadmap-svg { width:100%; height:360px; }
+.svg-title { font:900 25px Pretendard, sans-serif; fill:#10233F; }
+.svg-sub { font:700 17px Pretendard, sans-serif; fill:#5b6675; }
+.svg-bottom { font:900 23px Pretendard, sans-serif; fill:#fff; }
+.mini-cards.four { margin-top:16px; display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.mini-cards div { background:white; border:1px solid var(--line); border-radius:18px; padding:18px; }
+.mini-cards b { color:var(--navy); display:block; margin-bottom:8px; font-size:16px; }
+.mini-cards p { margin:0; color:#5d6978; font-size:14px; line-height:1.55; }
+.bar-mini, .stack-bars, .model-bars, .importance-list { background:white; border:1px solid var(--line); border-radius:22px; padding:22px; box-shadow:0 10px 20px rgba(16,35,63,.06); }
+.bar-mini:before { content:attr(data-title); display:block; font-weight:900; color:var(--navy); margin-bottom:10px; }
+.bar-mini div, .stack-bars div, .model-bars div, .importance-list div { position:relative; margin:14px 0; height:34px; background:#eef2f6; border-radius:999px; overflow:hidden; }
+.bar-mini div:before, .stack-bars div:before, .model-bars div:before, .importance-list div:before { content:''; position:absolute; inset:0 auto 0 0; width:calc(var(--v, var(--p, var(--w))) * 1%); background:linear-gradient(90deg,var(--mint),#77d7ca); border-radius:999px; }
+.bar-mini span, .bar-mini b, .stack-bars span, .stack-bars b, .model-bars span, .model-bars b, .importance-list span, .importance-list b { position:absolute; z-index:2; top:50%; transform:translateY(-50%); font-weight:900; }
+.bar-mini span, .stack-bars span, .model-bars span, .importance-list span { left:14px; color:#10233F; }
+.bar-mini b, .stack-bars b, .model-bars b, .importance-list b { right:14px; color:#10233F; }
+.tab-area { background:white; border:1px solid var(--line); border-radius:24px; padding:22px; box-shadow:0 12px 24px rgba(16,35,63,.08); }
+.tab-buttons { display:flex; gap:10px; margin-bottom:18px; }
+.tab { border:1px solid var(--line); background:#f6f8fb; padding:10px 15px; border-radius:999px; cursor:pointer; font-weight:900; color:#596779; }
+.tab.active { background:var(--navy); color:white; }
+.tab-panel { display:none; min-height:275px; }
+.tab-panel.active { display:block; }
+.three-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.stat-card span { display:block; color:#606d7e; font-weight:700; }
+.explain { font-size:18px; color:#4b596b; line-height:1.6; margin-top:20px; }
+.line-sketch { height:210px; border-left:3px solid #cfd6df; border-bottom:3px solid #cfd6df; position:relative; margin:10px 20px 20px; background:linear-gradient(180deg, transparent 49%, rgba(16,35,63,.05) 50%, transparent 51%); }
+.line-sketch span { position:absolute; width:16px; height:16px; border-radius:50%; background:var(--mint); transform:translate(-50%,50%); box-shadow:0 0 0 6px rgba(18,183,163,.15); }
+.line-sketch i { position:absolute; left:8%; right:10%; bottom:52%; height:4px; background:linear-gradient(90deg,var(--mint),var(--amber)); transform:skewY(-10deg); transform-origin:left; opacity:.75; }
+.gauge { width:260px; height:150px; margin:8px auto 20px; border-radius:260px 260px 0 0; background:conic-gradient(from 270deg, #18B7A0 0deg, #18B7A0 32deg, #F2A541 32deg, #F2A541 90deg, #EF6A6A 90deg, #EF6A6A 180deg); position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; padding-bottom:18px; }
+.gauge:after { content:''; position:absolute; left:35px; right:35px; bottom:0; height:92px; background:white; border-radius:160px 160px 0 0; }
+.gauge .needle { position:absolute; bottom:4px; width:4px; height:110px; background:#10233F; transform-origin:bottom center; transform:rotate(var(--deg)); z-index:2; }
+.gauge strong, .gauge span { position:relative; z-index:3; }
+.gauge strong { font-size:34px; color:var(--navy); }
+.feature-diagram { display:grid; grid-template-columns:270px 60px 1fr; gap:16px; align-items:center; }
+.raw-box { background:#10233F; color:white; border-radius:24px; min-height:210px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-size:28px; font-weight:900; padding:18px; }
+.raw-box small { display:block; margin-top:12px; font-size:15px; color:#d8e5f0; font-weight:700; line-height:1.5; }
+.transform-arrow { font-size:46px; color:var(--mint); font-weight:900; text-align:center; }
+.feature-groups { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+.feature-groups div { background:white; border:1px solid var(--line); border-radius:20px; padding:18px; min-height:150px; box-shadow:0 8px 18px rgba(16,35,63,.06); }
+.feature-groups b { color:var(--navy); display:block; margin-bottom:10px; }
+.feature-groups span { color:#5b6878; font-size:15px; line-height:1.45; }
+.mt { margin-top:18px; }
+.math-layout { display:grid; grid-template-columns:1.1fr .9fr; gap:24px; align-items:stretch; }
+.math-card.large { background:white; border:1px solid var(--line); border-radius:24px; padding:26px; box-shadow:0 12px 24px rgba(16,35,63,.07); }
+.class-row { display:flex; gap:9px; flex-wrap:wrap; margin:16px 0; }
+.class-row span { background:#eef8f6; color:#0d746a; border-radius:999px; padding:9px 13px; font-weight:900; }
+.formula-big { margin:20px 0; padding:20px; border-radius:18px; background:#10233F; color:white; font-size:30px; font-weight:900; font-family:Consolas,Menlo,monospace; }
+.ev-demo { background:white; border:1px solid var(--line); border-radius:24px; padding:24px; box-shadow:0 12px 24px rgba(16,35,63,.07); }
+.ev-buttons { display:flex; gap:8px; margin:12px 0 16px; }
+.ev-buttons button { border:1px solid var(--line); background:#f6f8fb; border-radius:999px; padding:9px 12px; font-weight:900; cursor:pointer; }
+.ev-buttons button.active { background:var(--mint); color:white; }
+.ev-bars { display:flex; gap:7px; align-items:end; height:145px; padding:8px; border-radius:16px; background:#f8fafc; }
+.ev-bars div { flex:1; background:linear-gradient(180deg,var(--mint),#6ad8cc); border-radius:10px 10px 4px 4px; min-height:8px; position:relative; }
+.ev-bars div span { position:absolute; bottom:-24px; left:50%; transform:translateX(-50%); font-size:12px; font-weight:800; color:#617080; }
+.ev-result { margin-top:34px; font-size:20px; font-weight:900; color:var(--navy); }
+.method-check { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.method-card { background:white; border:1px solid var(--line); border-radius:22px; padding:20px; box-shadow:0 10px 22px rgba(16,35,63,.07); }
+.method-card span { color:#697589; font-weight:900; }
+.method-card strong { display:block; font-size:36px; color:var(--navy); margin:10px 0; }
+.method-card p { color:#5c6877; margin:0; }
+.decision-box { margin-top:18px; background:#10233F; color:white; border-radius:22px; padding:22px; font-size:18px; }
+.performance-flow { display:grid; grid-template-columns:1fr 40px 1fr 40px 1fr; gap:10px; align-items:center; margin-bottom:20px; }
+.performance-flow div { background:white; border:1px solid var(--line); border-radius:24px; padding:24px; box-shadow:0 10px 22px rgba(16,35,63,.07); text-align:center; }
+.performance-flow div.highlight { background:#effffb; border-color:#aee8dd; }
+.performance-flow span { font-weight:900; color:#5d6878; }
+.performance-flow strong { display:block; font-size:50px; color:var(--navy); }
+.performance-flow em { font-style:normal; color:#5c6877; }
+.performance-flow i { font-style:normal; font-size:36px; color:var(--mint); text-align:center; font-weight:900; }
+.pf-delta { display:block; font-size:13px; font-weight:900; color:var(--muted); margin-top:6px; font-style:normal; }
+.pf-delta.best { color:var(--mint); }
+.r2-row td { background:#fff8ec !important; font-weight:900; color:#7a4a00; }
+.residual-layout { display:grid; grid-template-columns:1.1fr .9fr; gap:24px; }
+.u-chart { background:white; border:1px solid var(--line); border-radius:24px; padding:26px 18px 45px; height:330px; display:flex; gap:16px; align-items:end; justify-content:space-around; box-shadow:0 10px 22px rgba(16,35,63,.07); }
+.u-bar { width:86px; background:linear-gradient(180deg,#9F6AD6,#c9a6ee); border-radius:14px 14px 6px 6px; position:relative; height:var(--h,120px); }
+.u-bar.tall { --h:255px; } .u-bar.tall2 { --h:215px; } .u-bar.mid { --h:150px; } .u-bar.low { --h:42px; } .u-bar.low2 { --h:65px; }
+.u-bar span, .u-bar b { position:absolute; left:50%; transform:translateX(-50%); font-weight:900; }
+.u-bar span { bottom:-28px; color:#5e6977; }
+.u-bar b { top:-28px; color:#10233F; font-size:14px; }
+.residual-text { background:white; border:1px solid var(--line); border-radius:24px; padding:26px; box-shadow:0 10px 22px rgba(16,35,63,.07); }
+.industry-map { background:white; border:1px solid var(--line); border-radius:24px; padding:22px; box-shadow:0 10px 22px rgba(16,35,63,.07); }
+.industry-map button { display:block; width:100%; border:1px solid var(--line); background:#f6f8fb; border-radius:14px; padding:13px; margin-bottom:10px; font-weight:900; cursor:pointer; text-align:left; }
+.industry-map button.active { background:#10233F; color:white; }
+.industry-detail { margin-top:12px; padding:18px; border-radius:16px; background:#effffb; color:#15384a; font-weight:800; line-height:1.55; }
+.concept-diagram { background:white; border:1px solid var(--line); border-radius:24px; padding:22px 18px 18px; box-shadow:0 10px 22px rgba(16,35,63,.07); display:flex; flex-direction:column; gap:14px; }
+.concept-diagram .circle-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.circle { width:100%; aspect-ratio:1/1; max-width:110px; margin:0 auto; border-radius:50%; display:grid; place-items:center; font-weight:900; color:white; font-size:15px; text-align:center; }
+.c1 { background:#10233F; } .c2 { background:#18B7A0; } .c3 { background:#F2A541; } .c4 { background:#EF6A6A; }
+.concept-diagram p { margin:0; color:#526071; font-size:14px; font-weight:800; line-height:1.5; text-align:center; }
+.risk-flow { display:grid; grid-template-columns:1fr 30px 1fr 30px 1fr 30px 1fr; gap:10px; align-items:center; margin-bottom:18px; }
+.score-node { background:white; border:1px solid var(--line); border-radius:22px; padding:20px; text-align:center; box-shadow:0 10px 22px rgba(16,35,63,.07); color:#5e6977; }
+.score-node b { color:var(--navy); }
+.score-node.final { background:#effffb; border-color:#aee8dd; }
+.plus, .equals { font-size:32px; color:var(--mint); font-weight:900; text-align:center; }
+.quote-card p { font-size:19px; line-height:1.55; color:#24324a; }
+.comparison-board { display:grid; grid-template-columns:1fr 70px 1fr; gap:20px; align-items:center; }
+.comparison-col { border-radius:26px; padding:28px; min-height:380px; box-shadow:0 12px 26px rgba(16,35,63,.07); }
+.comparison-col.midterm { background:#fff8ec; border:1px solid #f1d2a6; } .comparison-col.final { background:#effffb; border:1px solid #aee8dd; }
+.comparison-col h3 { font-size:30px; margin:0 0 16px; color:var(--navy); }
+.comparison-col li { margin:13px 0; font-size:19px; }
+.comparison-arrow { font-size:48px; color:var(--mint); text-align:center; font-weight:900; }
+.conclusion-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
+.conclusion-card { background:white; border:1px solid var(--line); border-radius:22px; padding:20px; box-shadow:0 10px 22px rgba(16,35,63,.07); min-height:160px; }
+.conclusion-card b { display:inline-grid; place-items:center; width:36px; height:36px; border-radius:12px; background:var(--mint); color:white; }
+.conclusion-card h3 { margin:12px 0 6px; color:var(--navy); }
+.conclusion-card p { margin:0; color:#5d6878; }
+.final-claim { margin-top:18px; background:#10233F; color:white; border-radius:22px; padding:22px; font-size:22px; line-height:1.5; }
+.qa-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+.flip { perspective:1000px; min-height:180px; position:relative; cursor:pointer; }
+.flip .front, .flip .back { position:absolute; inset:0; backface-visibility:hidden; border-radius:22px; padding:24px; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:900; font-size:21px; box-shadow:0 10px 22px rgba(16,35,63,.07); transition:transform .5s ease; }
+.flip .front { background:white; border:1px solid var(--line); color:var(--navy); }
+.flip .back { background:#10233F; color:white; transform:rotateY(180deg); }
+.flip:hover .front, .flip:focus .front { transform:rotateY(180deg); }
+.flip:hover .back, .flip:focus .back { transform:rotateY(360deg); }
+/* Typography hierarchy */
+.content h3 { font-size:20px; font-weight:900; color:var(--navy); margin:0 0 12px; letter-spacing:-.02em; }
+/* Math proof layout */
+.math-proof-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; height:calc(100% - 20px); }
+.math-proof-card { border-radius:22px; padding:20px; border:1px solid var(--line); box-shadow:0 10px 24px rgba(16,35,63,.07); display:flex; flex-direction:column; }
+.math-proof-card.accent-navy { background:linear-gradient(135deg,#0e1f3a,#173a65); color:white; border-color:transparent; }
+.math-proof-card.accent-mint { background:linear-gradient(135deg,#0d3b35,#1a6b5e); color:white; border-color:transparent; }
+.math-proof-card.accent-amber { background:linear-gradient(135deg,#3d2800,#7a5200); color:white; border-color:transparent; }
+.math-proof-card.accent-rose { background:linear-gradient(135deg,#3d1010,#7a2020); color:white; border-color:transparent; }
+.mp-label { font-size:13px; font-weight:900; letter-spacing:.06em; text-transform:uppercase; opacity:.75; margin-bottom:10px; }
+.math-proof-card .formula-box { font-size:15px; line-height:1.7; padding:14px 16px; margin:0; border-radius:14px; }
+body.warm { --navy:#4A2F24; --navy2:#6E4B38; --mint:#E7894D; --mint2:#FFF1E7; --amber:#E0A43A; --grad:linear-gradient(135deg,#fffaf3,#f6efe7 60%,#fff4e6); }
+body.mint { --navy:#113934; --navy2:#1F5E56; --mint:#11BFA6; --amber:#85C55B; --grad:linear-gradient(135deg,#f4fffb,#eaf8f4 60%,#f9fbff); }
+
+/* v6 refinements */
+.cover-slide .slide-inner { background:linear-gradient(135deg, rgba(16,35,63,.98), rgba(23,65,104,.96) 48%, rgba(18,183,163,.88)); color:white; padding:48px 56px 70px; }
+.cover-slide .slide-inner:before { background:radial-gradient(circle, rgba(255,255,255,.22), transparent 65%); right:-80px; top:-100px; }
+.cover-stage { display:grid; grid-template-columns:1.18fr .82fr; gap:34px; align-items:center; height:calc(100% - 56px); position:relative; z-index:2; }
+.cover-kicker { display:inline-flex; padding:10px 18px; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.28); border-radius:999px; font-weight:900; letter-spacing:.06em; margin-bottom:24px; }
+.cover-title { font-size:64px; line-height:1.05; letter-spacing:-.055em; margin:0 0 20px; color:white; }
+.cover-subtitle { font-size:24px; line-height:1.55; color:rgba(255,255,255,.82); max-width:860px; }
+.cover-meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:34px; }
+.cover-meta span { border:1px solid rgba(255,255,255,.28); background:rgba(255,255,255,.10); padding:10px 14px; border-radius:999px; font-weight:800; color:rgba(255,255,255,.9); }
+.cover-panel { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); border-radius:28px; padding:28px; box-shadow:0 28px 70px rgba(0,0,0,.18); }
+.cover-panel h3 { color:white; margin:0 0 18px; }
+.cover-panel .cover-metric { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.cover-panel .cover-metric.cover-metric-3 { grid-template-columns:1fr 1fr 1fr; }
+.cover-panel .cover-metric div { background:rgba(255,255,255,.13); border-radius:20px; padding:18px; }
+.cover-panel .cover-metric em { display:block; font-style:normal; color:rgba(255,255,255,.7); font-weight:800; font-size:13px; }
+.cover-panel .cover-metric strong { display:block; font-size:30px; color:white; margin-top:6px; }
+.target-eq-card { background:linear-gradient(135deg,#10233F,#183B66); color:white; border-radius:22px; padding:22px; box-shadow:0 16px 36px rgba(16,35,63,.15); }
+.target-eq-card .mathline { font-size:31px; font-weight:900; letter-spacing:-.03em; margin-bottom:10px; }
+.target-eq-card p { margin:0; color:rgba(255,255,255,.82); line-height:1.45; font-size:16px; }
+.target-dist { background:#fff; border:1px solid var(--line); border-radius:22px; padding:18px 20px 16px; }
+.target-dist h3 { margin:0 0 12px; font-size:18px; }
+.target-bars { display:grid; grid-template-columns:repeat(9,1fr); gap:8px; height:170px; align-items:end; }
+.target-bars .bar-cell { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; font-size:12px; font-weight:800; color:#4f5a69; }
+.target-bars .bar-cell i { display:block; width:100%; border-radius:10px 10px 4px 4px; background:linear-gradient(180deg,var(--mint),#4ec8b9); min-height:4px; position:relative; }
+.target-bars .bar-cell.empty { position:relative; }
+.target-bars .bar-cell.empty i { display:none; }
+.target-bars .bar-cell.empty .empty-slot { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:88px; border-radius:10px; border:2.5px dashed var(--rose); background:rgba(239,106,106,.07); gap:4px; }
+.target-bars .bar-cell.empty .empty-label { font-size:10px; font-weight:900; color:var(--rose); letter-spacing:.03em; text-transform:uppercase; line-height:1.2; text-align:center; }
+.target-bars .bar-cell b { font-size:13px; color:var(--navy); }
+.target-bars .bar-cell.empty b { color:var(--rose); font-size:12px; }
+.target-caption { font-size:14px; color:var(--muted); margin-top:10px; line-height:1.45; }
+.diagnostic-layout { display:grid; grid-template-columns:1.2fr .8fr; gap:20px; align-items:stretch; }
+.diagnostic-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
+.diag-card { border-radius:20px; padding:18px; background:#fff; border:1px solid var(--line); box-shadow:0 8px 20px rgba(16,35,63,.05); }
+.diag-card em { display:block; font-style:normal; color:var(--muted); font-weight:900; font-size:13px; }
+.diag-card strong { display:block; font-size:26px; color:var(--navy); margin:5px 0; }
+.diag-card span { font-size:13px; color:#5f6b7b; line-height:1.45; }
+.learning-table { width:100%; border-collapse:separate; border-spacing:0 8px; font-size:15px; }
+.learning-table td, .learning-table th { padding:10px 12px; background:white; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+.learning-table th { background:#f5f8fb; color:var(--navy); font-weight:900; }
+.learning-table td:first-child, .learning-table th:first-child { border-left:1px solid var(--line); border-radius:12px 0 0 12px; font-weight:900; }
+.learning-table td:last-child, .learning-table th:last-child { border-right:1px solid var(--line); border-radius:0 12px 12px 0; }
+.learning-mini { background:white; border:1px solid var(--line); border-radius:22px; padding:18px; }
+.learning-mini .lm-row { display:grid; grid-template-columns:68px 1fr 74px; gap:12px; align-items:center; margin:10px 0; font-size:14px; font-weight:800; }
+.learning-mini .lm-track { height:12px; background:#edf1f5; border-radius:999px; overflow:hidden; }
+.learning-mini .lm-fill { height:100%; width:var(--w); background:linear-gradient(90deg,var(--amber),var(--mint)); border-radius:999px; }
+.auc-panel { background:white; border:1px solid var(--line); border-radius:22px; padding:18px; }
+.auc-scale { position:relative; height:72px; margin:12px 0 18px; border-radius:18px; background:linear-gradient(90deg,#daf2ec 0%,#daf2ec 25%,#fff3db 55%,#ffe5e5 100%); border:1px solid var(--line); }
+.auc-scale:before { content:'0.5'; position:absolute; left:2%; bottom:8px; color:#556170; font-weight:900; }
+.auc-scale:after { content:'1.0'; position:absolute; right:3%; bottom:8px; color:#556170; font-weight:900; }
+.auc-marker { position:absolute; left:calc((0.5298 - .5) / .5 * 100%); top:8px; width:4px; height:56px; background:var(--navy); border-radius:999px; }
+.auc-marker b { position:absolute; top:-24px; left:50%; transform:translateX(-50%); background:var(--navy); color:white; padding:5px 9px; border-radius:999px; font-size:13px; }
+.diag-explain { background:#f8fafc; border:1px solid var(--line); border-radius:22px; padding:18px; line-height:1.55; color:#4f5b6b; }
+.formula-table td:nth-child(2) { font-family:'Segoe UI',sans-serif; font-weight:900; color:var(--navy); }
+.delta-note { margin-top:10px; font-size:13px; color:var(--muted); font-weight:800; padding-left:4px; }
+.missing-footnote { display:flex; flex-wrap:wrap; align-items:center; gap:8px; background:#f8fafc; border:1px solid var(--line); border-radius:16px; padding:14px 18px; }
+.mf-label { font-weight:900; color:var(--navy); font-size:14px; margin-right:4px; }
+.mf-item { font-size:14px; color:#445060; }
+.mf-item b { color:var(--navy); }
+.mf-sep { color:#c2cad8; font-weight:900; }
+.mf-note { font-size:13px; color:var(--mint); font-weight:800; margin-left:6px; }
+.formula-pill { display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; background:var(--mint2); color:var(--navy); font-weight:900; font-size:13px; }
+.industry-visual { display:grid; grid-template-columns:1fr; gap:14px; }
+.industry-bars { background:#fff; border:1px solid var(--line); border-radius:22px; padding:18px; }
+.industry-bar { display:grid; grid-template-columns:160px 1fr 74px; gap:12px; align-items:center; margin:12px 0; font-size:14px; font-weight:900; }
+.industry-bar .track { height:18px; background:#edf1f5; border-radius:999px; overflow:hidden; }
+.industry-bar .fill { height:100%; width:var(--w); background:linear-gradient(90deg,#7ccfc1,var(--mint)); border-radius:999px; }
+.industry-bar.warn .fill { background:linear-gradient(90deg,#f0b15c,#ef7b65); }
+.industry-ref { border-top:1px dashed #cbd3df; margin-top:10px; padding-top:10px; font-size:13px; color:var(--muted); font-weight:800; }
+.industry-ref-top { font-size:12px; color:var(--muted); font-weight:800; margin-bottom:8px; letter-spacing:.01em; }
+.model-bar-label { font-size:12px; color:var(--muted); font-weight:800; margin-bottom:8px; letter-spacing:.01em; padding-left:2px; }
+.qa-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+.flip { perspective:1000px; min-height:130px; position:relative; cursor:pointer; }
+.flip .front, .flip .back { position:absolute; inset:0; backface-visibility:hidden; border-radius:22px; padding:16px; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:900; font-size:16px; box-shadow:0 10px 22px rgba(16,35,63,.07); transition:transform .5s ease; line-height:1.4; }
+.cover-note { position:absolute; bottom:34px; left:56px; right:56px; color:rgba(255,255,255,.68); font-weight:700; font-size:15px; }
+
+
+/* v6 slide-specific fit corrections */
+#slide-3 .slide-inner { padding-top:28px; padding-bottom:66px; }
+#slide-3 h1 { font-size:39px; }
+#slide-3 .subtitle { margin-bottom:18px; }
+#slide-3 .data-card { padding:16px 20px; border-radius:20px; }
+#slide-3 .data-card strong { font-size:36px; margin:3px 0 2px; }
+#slide-3 .target-eq-card { padding:17px 20px; border-radius:20px; align-self:start; }
+#slide-3 .target-eq-card .mathline { font-size:28px; margin-bottom:8px; }
+#slide-3 .target-eq-card p { font-size:15px; }
+#slide-3 .target-dist { padding:14px 18px 12px; align-self:start; border-radius:20px; }
+#slide-3 .target-dist h3 { font-size:17px; margin-bottom:8px; }
+#slide-3 .target-bars { height:116px; gap:7px; }
+#slide-3 .target-bars .bar-cell { height:100%; }
+#slide-3 .target-bars .bar-cell i { width:90%; }
+#slide-3 .target-caption { margin-top:8px; font-size:13px; }
+#slide-3 .mt { margin-top:14px; }
+#slide-3 .tight-table th, #slide-3 .tight-table td { padding:9px 12px; font-size:14px; }
+#slide-3 .callout { padding:16px; font-size:15px; line-height:1.48; }
+
+@media (max-width: 1000px) {
+  h1 { font-size:34px; } .slide-inner { padding:24px 24px 72px; } .two-col, .two-col.wide-left, .math-layout, .hero-grid, .residual-layout, .comparison-board, .risk-flow, .performance-flow, .feature-diagram { grid-template-columns:1fr; } .story-strip { grid-template-columns:1fr; gap:10px; } .story-arrow { display:none; } .feature-groups, .method-check, .conclusion-grid { grid-template-columns:1fr 1fr; } .dots { display:none; }
+}
+.shortcut-tip { position:fixed; top:60px; right:22px; background:rgba(14,35,67,.92); color:white; border-radius:18px; padding:14px 18px; font-size:13px; line-height:1.7; font-weight:700; z-index:50; display:none; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.18); min-width:200px; }
+.shortcut-tip.open { display:block; animation:fadeIn .2s ease; }
+.shortcut-tip table { border-collapse:collapse; }
+.shortcut-tip td { padding:2px 8px 2px 0; color:rgba(255,255,255,.8); }
+.shortcut-tip td:first-child { color:var(--mint); font-weight:900; font-family:monospace; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<a class="home-control" id="homeBtn" href="index.html" aria-label="프로젝트 홈화면으로 이동">홈으로</a>
+<div class="controls">
+  <button class="ctrl" id="outlineBtn">목차</button>
+  <button class="ctrl" id="glossaryBtn">용어</button>
+  <button class="ctrl" id="themeBtn">테마</button>
+  <button class="ctrl" id="shortcutBtn">⌨</button>
+</div>
+<div class="shortcut-tip" id="shortcutTip">
+  <table>
+    <tr><td>→ / Space</td><td>다음 슬라이드</td></tr>
+    <tr><td>←</td><td>이전 슬라이드</td></tr>
+    <tr><td>Home</td><td>첫 슬라이드</td></tr>
+    <tr><td>O</td><td>목차 열기</td></tr>
+    <tr><td>G</td><td>용어 사전</td></tr>
+    <tr><td>I</td><td>해석 인사이트</td></tr>
+    <tr><td>Esc</td><td>팝업 닫기</td></tr>
+  </table>
+</div>
+<div class="deck" id="deck">
+
+
+<section class="slide cover-slide" id="slide-cover" data-title="표지" data-insight="오늘 발표의 핵심은 모델 점수 자체가 아니라, 그 점수를 만들기 위해 어떤 기준선과 검증 과정을 거쳤는지 설명하는 것이다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">CAPSTONE DESIGN 1 · FINAL PRESENTATION</div>
+      <div class="slide-count">04 / 23</div>
+    </div>
+    <div class="cover-stage">
+      <div>
+        <div class="cover-kicker">단국대학교 수학과 캡스톤디자인</div>
+        <h1 class="cover-title">AI 기반<br/>숨은 성장기업 발굴</h1>
+        <p class="cover-subtitle">기업 성공확률 예측 데이터를 기반으로 성장기업 패턴을 수학적으로 검증하고, 예측값의 해석 가능 범위를 분석한 최종 발표</p>
+        <div class="cover-meta"><span>Baseline 검증</span><span>Expected Value</span><span>잔차 분석</span><span>산업군 RMSE</span></div>
+      </div>
+      <div class="cover-panel">
+        <h3>오늘의 핵심 질문</h3>
+        <div class="cover-metric cover-metric-3">
+          <div><em>Final Model</em><strong>RF EV</strong></div>
+          <div><em>Final RMSE</em><strong>0.2375</strong></div>
+          <div><em>Target Classes</em><strong>8</strong></div>
+        </div>
+        <p style="margin-top:20px;color:rgba(255,255,255,.78);line-height:1.55">"이 기업이 성공한다"가 아니라, <b>성장기업 패턴과 얼마나 유사한지</b>를 분석한다.</p>
+      </div>
+    </div>
+
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+
+<section class="slide " id="slide-1" data-title="AI 기반 숨은 성장기업 발굴" data-insight="발표의 중심 질문은 “점수가 높게 나왔는가?”가 아니라 “그 점수를 어떤 근거로, 어디까지 해석할 수 있는가?”이다. 최종 결과는 예측값 자체보다 검증 과정과 해석 범위에 있다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">CAPSTONE FINAL</div>
+      <div class="slide-count">02 / 23</div>
+    </div>
+    <h1>AI 기반 숨은 성장기업 발굴</h1>
+    <p class="subtitle">기업 성공확률 예측 데이터를 활용한 수학적 검증 중심 분석 보고</p>
+    <div class="content">
+<div class="hero-grid">
+  <div class="hero-left">
+    <div class="question-card main-question">
+      <span class="q-label">Research Question</span>
+      <h2>기업 성공확률 예측 결과를<br/>어디까지 믿을 수 있는가?</h2>
+      <p>중간발표 이후의 분석은 “모델을 만들었다”에서 멈추지 않고, 기준선·신호·잔차·산업군을 순서대로 검증하는 방향으로 재설계했다.</p>
+    </div>
+    <div class="mini-timeline">
+      <span>문제정의</span><b></b><span>기준선</span><b></b><span>신호진단</span><b></b><span>모델전환</span><b></b><span>해석</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="big-metric"><em>Final RMSE</em><strong>0.2375</strong><span>RF Classifier Expected Value</span></div>
+    <div class="metric-row">
+      <div><em>Baseline</em><strong>0.2417</strong></div>
+      <div><em>MAE</em><strong>0.1978</strong></div>
+      <div><em>R²</em><strong>0.0340</strong></div>
+    </div>
+  </div>
+</div>
+<div class="bottom-statement">최종 산출물은 “미래 성공을 단정하는 예측모델”보다, <b>성장기업 패턴을 검증·해석하는 분석모델</b>로 접근하는 것이 바람직하다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-2" data-title="프로젝트 시작점과 문제 재정의" data-insight="초기 아이디어는 취업 의사결정 지원이었지만, 최종 분석에서는 표현을 더 엄격하게 바꿨다. 성공확률을 단정하는 대신, 학습 데이터에서 관찰된 성장기업 패턴과의 유사도를 계산하는 문제로 재정의했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">EDA &amp; PROBLEM</div>
+      <div class="slide-count">03 / 23</div>
+    </div>
+    <h1>프로젝트 시작점과 문제 재정의</h1>
+    <p class="subtitle">“성공 여부를 맞히는 문제”에서 “성장기업 패턴을 해석하는 문제”로</p>
+    <div class="content">
+<div class="story-strip">
+  <div class="story-step active"><b>1</b><span>문제</span><p>성장 가능성 높은 기업을 객관적으로 판단하기 어렵다.</p></div>
+  <div class="story-arrow"></div>
+  <div class="story-step"><b>2</b><span>의문</span><p>모델 성능을 어떤 기준으로 믿을 수 있는가?</p></div>
+  <div class="story-arrow"></div>
+  <div class="story-step"><b>3</b><span>검증</span><p>Baseline, 신호, 분포, 잔차를 수학적으로 확인한다.</p></div>
+  <div class="story-arrow"></div>
+  <div class="story-step"><b>4</b><span>해석</span><p>성장기업 패턴 유사도와 신뢰도 플래그로 표현한다.</p></div>
+</div>
+<div class="two-col balanced">
+  <div class="panel">
+    <h3>초기 문제의식</h3>
+    <ul class="clean-list">
+      <li><b>정보 비대칭</b> — 스타트업의 성장성·투자·매출 정보는 분산되어 있다.</li>
+      <li><b>판단 기준 부족</b> — 취업준비생은 “성장 가능한 기업인가?”를 데이터로 판단하기 어렵다.</li>
+      <li><b>분석 재정의</b> — 성공확률 예측을 기업 탐색 보조지표 문제로 바꾸었다.</li>
+    </ul>
+  </div>
+  <div class="diagram-card">
+    <h3>분석 문제의 수학적 형태</h3>
+    <div class="formula-box">xᵢ = 기업 정보 벡터<br/>yᵢ ∈ {0.1, 0.3, …, 0.9}<br/>목표: f(xᵢ) ≈ yᵢ</div>
+    <p class="note">입력 xᵢ는 설립연도, 분야, 투자단계, 매출, 직원 수, 투자금, 고객수, SNS 지표 등으로 구성된다.</p>
+  </div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-3" data-title="데이터 구조와 첫 번째 관찰" data-insight="성공확률이 8개 이산값이라는 점은 단순한 EDA 결과가 아니라 모델링 전략을 바꾸는 근거가 되었다. 이 때문에 회귀모델만 고집하지 않고 Expected Value 모델을 설계했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">EDA &amp; PROBLEM</div>
+      <div class="slide-count">04 / 21</div>
+    </div>
+    <h1>데이터 구조와 첫 번째 관찰</h1>
+    <p class="subtitle">데이터 크기보다 target의 구조가 모델링 전략을 바꾸는 단서였다</p>
+    <div class="content">
+<div class="data-layout">
+  <div class="data-card primary"><span>Train</span><strong>4,376</strong><em>rows × 14 columns</em></div>
+  <div class="data-card"><span>Test</span><strong>1,755</strong><em>rows × 13 columns</em></div>
+  <div class="data-card"><span>Target</span><strong>8 classes</strong><em>0.2는 존재하지 않음</em></div>
+</div>
+<div class="two-col balanced">
+  <div class="target-eq-card">
+    <div class="mathline">y ∈ C, &nbsp; |C| = 8</div>
+    <p>C = {0.1, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}<br/>성공확률은 연속값처럼 보이지만 실제로는 8개 구간형 class다.</p>
+  </div>
+  <div class="target-dist">
+    <h3>성공확률 target 분포</h3>
+    <div class="target-bars">
+      <div class="bar-cell"><i style="height:83%"></i><b>490</b><span>0.1</span></div>
+      <div class="bar-cell empty">
+        <div class="empty-slot">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="9" stroke="#EF6A6A" stroke-width="2.2" stroke-dasharray="4 3"/>
+            <line x1="6" y1="6" x2="16" y2="16" stroke="#EF6A6A" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+          <span class="empty-label">DATA<br/>MISSING</span>
+        </div>
+        <b>N/A</b><span>0.2</span>
+      </div>
+      <div class="bar-cell"><i style="height:97%"></i><b>574</b><span>0.3</span></div>
+      <div class="bar-cell"><i style="height:95%"></i><b>561</b><span>0.4</span></div>
+      <div class="bar-cell"><i style="height:95%"></i><b>559</b><span>0.5</span></div>
+      <div class="bar-cell"><i style="height:98%"></i><b>579</b><span>0.6</span></div>
+      <div class="bar-cell"><i style="height:100%"></i><b>590</b><span>0.7</span></div>
+      <div class="bar-cell"><i style="height:93%"></i><b>548</b><span>0.8</span></div>
+      <div class="bar-cell"><i style="height:81%"></i><b>475</b><span>0.9</span></div>
+    </div>
+    <p class="target-caption">0.2 class가 비어 있어 일반 회귀 접근만으로는 target 구조를 충분히 반영하기 어렵다.</p>
+  </div>
+</div>
+<div class="missing-footnote mt">
+  <span class="mf-label">주요 결측</span>
+  <span class="mf-item"><b>고객수</b> 30.2%</span>
+  <span class="mf-sep">·</span>
+  <span class="mf-item"><b>기업가치</b> 27.9%</span>
+  <span class="mf-sep">·</span>
+  <span class="mf-item"><b>분야</b> 19.6%</span>
+  <span class="mf-sep">·</span>
+  <span class="mf-item"><b>직원 수</b> 4.0%</span>
+  <span class="mf-note">→ 이산형 target + 결측 패턴 ⇒ Expected Value 모델 설계로 이어짐</span>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-4" data-title="중간발표까지의 상태와 남은 질문" data-insight="중간발표의 핵심 성과는 모델 파이프라인을 완성한 것이었다. 하지만 기말 분석에서는 “성능 숫자”보다 그 숫자를 판단할 기준과 한계를 먼저 세우는 방향으로 전환했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">EDA &amp; PROBLEM</div>
+      <div class="slide-count">05 / 23</div>
+    </div>
+    <h1>중간발표까지의 상태와 남은 질문</h1>
+    <p class="subtitle">모델은 만들었지만 “얼마나 믿을 수 있는가?”가 남았다</p>
+    <div class="content">
+<div class="two-col wide-left">
+  <div>
+    <h3>중간발표 당시 주요 결과</h3>
+    <table class="tight-table emphasize-first">
+      <thead><tr><th>항목</th><th>결과</th><th>당시 해석</th></tr></thead>
+      <tbody>
+        <tr><td>Random Forest MAE</td><td>0.19984</td><td>단일 모델 중 안정적</td></tr>
+        <tr><td>XGBoost MAE</td><td>0.20195</td><td>RF보다 소폭 낮음</td></tr>
+        <tr><td>Soft Voting OOF MAE</td><td>0.20027</td><td>RF:XGB = 7:3</td></tr>
+        <tr><td>OOF RMSE</td><td>0.23990</td><td>검증 결과로 제시</td></tr>
+        <tr><td>기술기업 subset MAE</td><td>0.19696</td><td>기술기업에서도 유지</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="question-stack">
+    <div class="question-bubble"><span>Q1</span> 평균만 예측해도 비슷한 성능이 나오는 것은 아닌가?</div>
+    <div class="question-bubble"><span>Q2</span> 데이터에 실제 예측 신호가 존재하는가?</div>
+    <div class="question-bubble"><span>Q3</span> 8개 이산 target 구조를 회귀모델이 잘 반영하는가?</div>
+  </div>
+</div>
+<div class="bottom-statement small">중간발표의 한계: “모델 간 비교”는 있었지만, “모델을 믿을 기준선”과 “오차 구조”가 충분히 설명되지 않았다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-5" data-title="중간발표 이후 트러블슈팅 로드맵" data-insight="분석의 흐름은 모델을 계속 바꾸는 것이 아니라, 의심되는 원인을 하나씩 제거하는 방식이었다. 기준선, 신호, 데이터 양, 분포 차이, 피처 표현, target 구조, 잔차를 순서대로 확인했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">METHODOLOGY</div>
+      <div class="slide-count">06 / 23</div>
+    </div>
+    <h1>중간발표 이후 트러블슈팅 로드맵</h1>
+    <p class="subtitle">질문을 하나씩 분해해 모델의 신뢰 범위를 좁혀갔다</p>
+    <div class="content">
+<div class="roadmap-svg-wrap">
+<svg viewBox="0 0 1100 400" class="roadmap-svg" role="img" aria-label="troubleshooting roadmap">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#18B7A0"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#F4A340"/>
+    </marker>
+  </defs>
+  <!-- 4개 박스 상단 행 -->
+  <rect x="30"  y="30" width="220" height="100" rx="18" fill="#fff" stroke="#18B7A0" stroke-width="3"/>
+  <text x="140" y="70"  text-anchor="middle" class="svg-title">① Baseline</text>
+  <text x="140" y="95"  text-anchor="middle" class="svg-sub">평균 예측보다 나은가?</text>
+  <text x="140" y="118" text-anchor="middle" class="svg-sub">RMSE 0.2417 기준</text>
+
+  <rect x="295" y="30" width="220" height="100" rx="18" fill="#fff" stroke="#18B7A0" stroke-width="3"/>
+  <text x="405" y="70"  text-anchor="middle" class="svg-title">② Signal</text>
+  <text x="405" y="95"  text-anchor="middle" class="svg-sub">신호·양·분포 문제?</text>
+  <text x="405" y="118" text-anchor="middle" class="svg-sub">MI · LC · Adv AUC</text>
+
+  <rect x="560" y="30" width="220" height="100" rx="18" fill="#fff" stroke="#18B7A0" stroke-width="3"/>
+  <text x="670" y="70"  text-anchor="middle" class="svg-title">③ Features</text>
+  <text x="670" y="95"  text-anchor="middle" class="svg-sub">경제학적 변수 설계</text>
+  <text x="670" y="118" text-anchor="middle" class="svg-sub">RMSE 0.2396</text>
+
+  <rect x="825" y="30" width="220" height="100" rx="18" fill="#fff" stroke="#18B7A0" stroke-width="3"/>
+  <text x="935" y="70"  text-anchor="middle" class="svg-title">④ Model</text>
+  <text x="935" y="95"  text-anchor="middle" class="svg-sub">EV 분류 모델 전환</text>
+  <text x="935" y="118" text-anchor="middle" class="svg-sub">RMSE 0.2375</text>
+
+  <!-- 4개 박스 → 중앙 수렴점으로 화살표 -->
+  <line x1="140" y1="130" x2="500" y2="268" stroke="#18B7A0" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="405" y1="130" x2="520" y2="268" stroke="#18B7A0" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="670" y1="130" x2="580" y2="268" stroke="#18B7A0" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="935" y1="130" x2="600" y2="268" stroke="#18B7A0" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- 수렴 → 최종 박스 -->
+  <line x1="550" y1="270" x2="550" y2="308" stroke="#F4A340" stroke-width="4" marker-end="url(#arrow-amber)"/>
+
+  <!-- 최종 질문 박스 -->
+  <rect x="60" y="310" width="980" height="68" rx="20" fill="#0E2343" opacity=".97"/>
+  <text x="550" y="346" text-anchor="middle" class="svg-bottom">최종 질문: 성능이 아니라,</text>
+  <text x="550" y="368" text-anchor="middle" class="svg-bottom">활용 가능한 해석 범위는 어디까지인가?</text>
+</svg>
+</div>
+<div class="mini-cards four">
+  <div><b>검증 기준</b><p>Baseline 대비 개선폭</p></div>
+  <div><b>데이터 신호</b><p>MI, permutation, learning curve</p></div>
+  <div><b>수학적 전환</b><p>Expected Value 모델</p></div>
+  <div><b>해석 범위</b><p>잔차·산업군·risk flags</p></div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-6" data-title="트러블슈팅 1 — Baseline 없이 성능을 말하면 위험하다" data-insight="분야나 투자단계 같은 단순 그룹 평균은 평균 baseline을 넘지 못했다. 따라서 성공확률은 산업군 하나로 설명되지 않고, 여러 기업 특성의 조합을 함께 봐야 하는 문제로 해석했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">TROUBLESHOOTING</div>
+      <div class="slide-count">07 / 23</div>
+    </div>
+    <h1>트러블슈팅 1 — Baseline 없이 성능을 말하면 위험하다</h1>
+    <p class="subtitle">평균 예측 0.2417을 모델이 넘어야 할 최소 기준선으로 설정했다</p>
+    <div class="content">
+<div class="two-col wide-left">
+  <div>
+    <h3>Baseline 5종 비교</h3>
+    <table class="tight-table">
+      <thead><tr><th>모델</th><th>RMSE</th><th>MAE</th><th>해석</th></tr></thead>
+      <tbody>
+        <tr><td>전체 평균 예측</td><td>0.2417</td><td>0.2050</td><td>기준선</td></tr>
+        <tr><td>분야별 평균</td><td>0.2417</td><td>0.2046</td><td>RMSE 개선 없음</td></tr>
+        <tr><td>투자단계별 평균</td><td>0.2418</td><td>0.2050</td><td>기준선보다 소폭 악화</td></tr>
+        <tr><td>분야+투자단계</td><td>0.2437</td><td>0.2053</td><td>그룹 세분화로 불안정</td></tr>
+        <tr><td>전체 중앙값</td><td>0.2497</td><td>0.2048</td><td>큰 오차에 취약</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <div class="bar-mini" data-title="← 막대 길수록 RMSE 낮음 (안정적)">
+      <div style="--v:95"><span>전체 평균</span><b>0.2417 ★</b></div>
+      <div style="--v:95"><span>분야별 평균</span><b>0.2417</b></div>
+      <div style="--v:94"><span>투자단계별</span><b>0.2418</b></div>
+      <div style="--v:75"><span>분야+단계</span><b>0.2437</b></div>
+      <div style="--v:15"><span>전체 중앙값</span><b>0.2497</b></div>
+    </div>
+    <div class="callout amber"><b>우리의 질문</b><br/>“성능이 좋다”는 말은 무엇과 비교할 때 의미가 있는가?</div>
+  </div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-7" data-title="트러블슈팅 2 — 신호가 약한가, 데이터가 부족한가, 분포가 다른가?" data-insight="결론은 ‘데이터에 신호가 없어서 실패’가 아니다. 신호는 존재하지만 약하고, 데이터 양 부족과 train/test 분포 차이는 주된 원인으로 보기 어려웠다. 따라서 다음 해결 방향은 피처 표현과 모델 구조였다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">TROUBLESHOOTING</div>
+      <div class="slide-count">08 / 23</div>
+    </div>
+    <h1>트러블슈팅 2 — 신호가 약한가, 데이터가 부족한가, 분포가 다른가?</h1>
+    <p class="subtitle">성능 한계의 원인을 세 가지 가설로 분리해 검증했다</p>
+    <div class="content">
+<div class="tab-area">
+  <div class="tab-buttons">
+    <button class="tab active" data-tab="mi">1. 신호 크기</button>
+    <button class="tab" data-tab="lc">2. 데이터 양</button>
+    <button class="tab" data-tab="adv">3. 분포 차이</button>
+  </div>
+  <div class="tab-panel active" id="tab-mi">
+    <div class="diagnostic-summary">
+      <div class="diag-card"><em>Mean Baseline</em><strong>0.2417</strong><span>평균만 예측한 RMSE</span></div>
+      <div class="diag-card"><em>Actual RF</em><strong>0.2401</strong><span>개선폭 0.0015, 약 0.64%</span></div>
+      <div class="diag-card"><em>MI 상위</em><strong>고객수</strong><span>MI = 0.02989</span></div>
+    </div>
+    <div class="diag-explain"><b>해석:</b> target을 섞은 모델보다 실제 모델이 좋았으므로 신호는 존재한다. 하지만 baseline 대비 개선폭이 작아, 신호의 실용적 크기는 제한적이라고 보았다.</div>
+  </div>
+  <div class="tab-panel" id="tab-lc">
+    <div class="diagnostic-layout">
+      <div>
+        <table class="learning-table">
+          <thead><tr><th>훈련 데이터 비율</th><th>RMSE 흐름</th><th>해석</th></tr></thead>
+          <tbody>
+            <tr><td>10%</td><td>0.2531</td><td>표본이 작아 불안정</td></tr>
+            <tr><td>25%</td><td>0.2460</td><td>초기 개선</td></tr>
+            <tr><td>50%</td><td>0.2474</td><td>변동 존재</td></tr>
+            <tr><td>75%</td><td>0.2409</td><td>baseline 근처</td></tr>
+            <tr><td>100%</td><td>0.2405</td><td>75% 대비 개선폭 0.0004</td></tr>
+          </tbody>
+        </table>
+        <div class="diag-explain"><b>결론:</b> 데이터를 75%에서 100%로 늘려도 RMSE가 거의 줄지 않았다. 단순히 행 수를 더 늘리면 해결되는 문제로 보기 어렵다.</div>
+      </div>
+      <div class="learning-mini">
+        <h3>Learning Curve 요약</h3>
+        <div class="lm-row"><span>10%</span><div class="lm-track"><div class="lm-fill" style="--w:100%"></div></div><b>0.2531</b></div>
+        <div class="lm-row"><span>25%</span><div class="lm-track"><div class="lm-fill" style="--w:78%"></div></div><b>0.2460</b></div>
+        <div class="lm-row"><span>50%</span><div class="lm-track"><div class="lm-fill" style="--w:83%"></div></div><b>0.2474</b></div>
+        <div class="lm-row"><span>75%</span><div class="lm-track"><div class="lm-fill" style="--w:62%"></div></div><b>0.2409</b></div>
+        <div class="lm-row"><span>100%</span><div class="lm-track"><div class="lm-fill" style="--w:60%"></div></div><b>0.2405</b></div>
+        <p class="target-caption">막대가 짧아질수록 RMSE가 낮다. 마지막 구간의 변화가 작아 데이터 양 부족을 주범으로 보지 않았다.</p>
+      </div>
+    </div>
+  </div>
+  <div class="tab-panel" id="tab-adv">
+    <div class="diagnostic-layout">
+      <div class="auc-panel">
+        <h3>Adversarial Validation</h3>
+        <p class="target-caption">train=0, test=1을 맞히는 별도 모델을 만들고 AUC를 계산했다. AUC가 0.5에 가까우면 train/test를 잘 구분하지 못한다는 뜻이다.</p>
+        <div class="auc-scale"><div class="auc-marker"><b>0.5298</b></div></div>
+        <table class="tight-table">
+          <thead><tr><th>구간</th><th>의미</th><th>우리 결과</th></tr></thead>
+          <tbody>
+            <tr><td>0.50~0.60</td><td>분포 차이 작음</td><td>0.5298</td></tr>
+            <tr><td>0.60~0.70</td><td>일부 차이 존재</td><td>-</td></tr>
+            <tr><td>0.70 이상</td><td>분포 차이 큼</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="diag-explain"><b>결론:</b> 엄격 조건에서 AUC가 0.5298로 0.5에 가까웠다. 따라서 현재 성능 한계의 주 원인을 train/test 분포 이동으로 보기는 어렵고, 입력 변수의 설명력 한계 쪽에 더 무게를 두었다.</div>
+    </div>
+  </div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-8" data-title="트러블슈팅 3 — 피처를 많이 만들면 성능이 오를까?" data-insight="파생변수의 목적은 단순 성능 향상만이 아니었다. 매출·투자금 같은 규모 변수에서 생산성·투자효율·시장반응 같은 해석 가능한 변수로 전환해, 모델 결과를 설명할 언어를 만들었다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">TROUBLESHOOTING</div>
+      <div class="slide-count">09 / 23</div>
+    </div>
+    <h1>트러블슈팅 3 — 피처를 많이 만들면 성능이 오를까?</h1>
+    <p class="subtitle">경제학적 해석이 가능한 비율형 지표로 기업을 다시 표현했다</p>
+    <div class="content">
+<div class="feature-diagram">
+  <div class="raw-box">원자료<br/><small>매출 · 투자금 · 직원 수 · 고객수 · SNS · 기업가치</small></div>
+  <div class="transform-arrow">→</div>
+  <div class="feature-groups">
+    <div><b>생산성</b><span>산출 ÷ 투입</span></div>
+    <div><b>투자효율</b><span>성과 ÷ 자본</span></div>
+    <div><b>시장반응</b><span>고객 ÷ 관심</span></div>
+    <div><b>생애주기</b><span>기준연도 − 설립연도</span></div>
+    <div><b>불확실성</b><span>결측 여부와 결측 개수</span></div>
+  </div>
+</div>
+<table class="tight-table formula-table mt">
+  <thead><tr><th>변수군</th><th>대표 공식</th><th>경제학적 해석</th><th>분석 의도</th></tr></thead>
+  <tbody>
+    <tr><td>생산성</td><td>직원당매출 = 연매출 ÷ 직원 수</td><td>인력 1명당 산출</td><td>규모가 아닌 효율성 평가</td></tr>
+    <tr><td>투자효율</td><td>투자대비매출 = 연매출 ÷ 총 투자금</td><td>자본 투입 대비 성과</td><td>투자가 실적으로 연결되는지 확인</td></tr>
+    <tr><td>시장반응</td><td>SNS대비고객수 = 고객수 ÷ SNS 팔로워 수</td><td>관심의 고객 전환</td><td>홍보 지표와 실제 수요 연결</td></tr>
+    <tr><td>가치평가</td><td>기업가치대비매출 = 연매출 ÷ 기업가치</td><td>시장 평가 대비 실적</td><td>고평가/저평가 패턴 보조 해석</td></tr>
+    <tr><td>불확실성</td><td>missing_count = 결측 indicator 합</td><td>정보 공개성 부족</td><td>데이터 신뢰도와 예측 해석 주의 반영</td></tr>
+  </tbody>
+</table>
+<div class="callout soft"><b>경제학적 접근</b><br/>기업의 절대 규모보다 “투입 대비 산출”, “자본 대비 성과”, “관심 대비 고객 전환”처럼 효율성과 시장 반응을 나타내는 비율형 지표를 설계했다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-9" data-title="Feature set 검증" data-insight="best feature set은 RMSE 0.2396이었다. baseline 대비 개선은 확인됐지만, 개선폭은 제한적이었다. 이 결과는 현재 변수만으로 성공확률을 강하게 설명하기 어렵다는 이전 진단과 일치한다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">TROUBLESHOOTING</div>
+      <div class="slide-count">10 / 23</div>
+    </div>
+    <h1>Feature set 검증</h1>
+    <p class="subtitle">피처 엔지니어링은 “큰 성능 향상”보다 “해석 가능한 개선”을 만들었다</p>
+    <div class="content">
+<div class="two-col balanced">
+  <div>
+    <h3>Feature set 비교</h3>
+    <table class="tight-table">
+      <thead><tr><th>Feature set</th><th>RMSE</th><th>해석</th></tr></thead>
+      <tbody>
+        <tr><td>base_features</td><td>0.2402</td><td>기본 전처리</td></tr>
+        <tr><td>base_plus_missing</td><td>0.2403</td><td>결측 단독 효과 약함</td></tr>
+        <tr><td>base_plus_ratio</td><td>0.2399</td><td>효율성 변수 소폭 개선</td></tr>
+        <tr><td>all_features</td><td>0.2396</td><td>전체 파생변수 반영</td></tr>
+        <tr><td>onehot_all_features</td><td>0.2396</td><td>best 후보</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <div class="stack-bars">
+      <div style="--p:80"><span>base (0.2402)</span><b>−0.0015</b></div>
+      <div style="--p:78"><span>+ratio (0.2399)</span><b>−0.0018</b></div>
+      <div style="--p:74"><span>all_features (0.2396)</span><b>−0.0021</b></div>
+      <div style="--p:74"><span>onehot_all (0.2396)</span><b>−0.0021</b></div>
+    </div>
+    <div class="delta-note">숫자 = baseline(0.2417) 대비 RMSE 개선폭</div>
+  </div>
+</div>
+<div class="callout soft">개선폭은 크지 않았지만, 기업 분석 관점의 변수들이 baseline보다 나은 방향을 만들었다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-10" data-title="트러블슈팅 4 — 회귀 문제가 아니라 이산형 target 문제일 수 있다" data-insight="회귀 모델은 하나의 실수값을 바로 예측한다. 반면 Expected Value 모델은 각 성공확률 class에 속할 확률을 먼저 계산한다. target이 이산형이라는 데이터 구조를 수학적으로 반영한 것이 최종 성능 개선의 핵심이었다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">TROUBLESHOOTING</div>
+      <div class="slide-count">11 / 23</div>
+    </div>
+    <h1>트러블슈팅 4 — 회귀 문제가 아니라 이산형 target 문제일 수 있다</h1>
+    <p class="subtitle">Expected Value 방식으로 target 구조를 모델링했다</p>
+    <div class="content">
+<div class="math-layout">
+  <div class="math-card large">
+    <span class="q-label">Target structure</span>
+    <h3>성공확률은 연속값이 아니라 8개 class</h3>
+    <div class="class-row"><span>0.1</span><span>0.3</span><span>0.4</span><span>0.5</span><span>0.6</span><span>0.7</span><span>0.8</span><span>0.9</span></div>
+    <div class="formula-big">ŷ = Σ P(y = cₖ | x) × cₖ</div>
+    <p>각 class에 속할 확률을 예측한 뒤, 확률분포의 기대값을 최종 점수로 계산했다.</p>
+  </div>
+  <div class="ev-demo">
+    <h3>Expected Value 데모</h3>
+    <p class="mini">버튼을 눌러 확률분포가 바뀌면 기대값도 함께 변한다.</p>
+    <div class="ev-buttons">
+      <button data-preset="balanced" class="ev active">중간형</button>
+      <button data-preset="high" class="ev">상위형</button>
+      <button data-preset="uncertain" class="ev">불확실형</button>
+    </div>
+    <div id="evBars" class="ev-bars"></div>
+    <div class="ev-result">계산된 ŷ = <b id="evValue">0.55</b></div>
+  </div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-11" data-title="최종 모델 비교" data-insight="최종 모델은 rf_clf_ev_all + clip이다. class 확률의 기대값을 계산한 방식이 RF 회귀모델보다 낮은 RMSE를 보였고, target 구조를 설명하기에도 더 적합했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">MODELING</div>
+      <div class="slide-count">12 / 23</div>
+    </div>
+    <h1>최종 모델 비교</h1>
+    <p class="subtitle">회귀보다 분류 기반 Expected Value가 더 안정적으로 작동했다</p>
+    <div class="content">
+<div class="two-col wide-left">
+  <table class="tight-table">
+    <thead><tr><th>모델</th><th>방식</th><th>RMSE</th><th>MAE</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>rf_clf_ev_all</td><td>Classifier EV</td><td>0.2375</td><td>0.1978</td><td>최종 선택</td></tr>
+      <tr><td>extratrees_clf_ev_all</td><td>Classifier EV</td><td>0.2385</td><td>0.1984</td><td>예비 후보</td></tr>
+      <tr><td>rf_reg_all</td><td>Regressor</td><td>0.2396</td><td>0.1996</td><td>회귀 기준</td></tr>
+      <tr><td>xgb_clf_ev_all</td><td>Classifier EV</td><td>0.2414</td><td>0.2033</td><td>개선 제한</td></tr>
+      <tr><td>ridge_onehot</td><td>Linear</td><td>0.2427</td><td>0.2043</td><td>선형 설명력 약함</td></tr>
+    </tbody>
+  </table>
+  <div class="model-bars">
+    <div class="model-bar-label">← 막대 길수록 RMSE 낮음 (안정적)</div>
+    <div style="--w:95"><span>RF EV ✓</span><b>0.2375</b></div>
+    <div style="--w:80"><span>ET EV</span><b>0.2385</b></div>
+    <div style="--w:63"><span>RF Reg</span><b>0.2396</b></div>
+    <div style="--w:35"><span>XGB EV</span><b>0.2414</b></div>
+    <div style="--w:15"><span>Ridge</span><b>0.2427</b></div>
+  </div>
+</div>
+<div class="callout mint"><b>모델 선택 기준</b> RMSE 최저값뿐 아니라, fold 안정성·해석 가능성·target 구조 반영 여부를 함께 보았다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-12" data-title="추가 방법론 점검" data-insight="DACON 코드 공유 아이디어를 반영해 seed ensemble, LightGBM, CatBoost, residual modeling까지 확인했다. 그러나 현재 데이터에서는 target 구조를 활용한 RF Expected Value가 가장 안정적이었다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">MODELING</div>
+      <div class="slide-count">13 / 23</div>
+    </div>
+    <h1>추가 방법론 점검</h1>
+    <p class="subtitle">더 복잡한 모델이 항상 더 좋은 것은 아니었다</p>
+    <div class="content">
+<div class="method-check">
+  <div class="method-card"><span>Seed Ensemble</span><strong>0.2374</strong><p>개선폭 0.0001 → 교체 기준 미달</p></div>
+  <div class="method-card"><span>LightGBM EV</span><strong>0.2418</strong><p>기존 모델보다 악화</p></div>
+  <div class="method-card"><span>CatBoost EV</span><strong>0.2415</strong><p>기존 모델보다 악화</p></div>
+  <div class="method-card"><span>Residual Modeling</span><strong>0.2401</strong><p>복잡도 증가 대비 개선 없음</p></div>
+</div>
+<div class="decision-box">
+  <b>Final Decision</b>
+  <p>추가 방법론은 모두 동일한 CV 기준으로 점검했으며, 개선폭이 0.0005 미만이거나 악화되어 기존 <b>rf_clf_ev_all + clip</b>을 유지했다.</p>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-13" data-title="최종 성능과 수학적 검증" data-insight="RMSE와 MAE는 baseline보다 개선되었다. 그러나 R²가 낮기 때문에 모델을 “강한 미래 예측기”로 주장하지 않고, 기업 탐색을 위한 분석 점수로 해석했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">MODELING</div>
+      <div class="slide-count">14 / 23</div>
+    </div>
+    <h1>최종 성능과 수학적 검증</h1>
+    <p class="subtitle">성능은 개선되었지만, 해석 범위는 제한적으로 정의했다</p>
+    <div class="content">
+<div class="performance-flow">
+  <div><span>Mean Baseline</span><strong>0.2417</strong><em>평균만 예측</em></div>
+  <i>→</i>
+  <div><span>Feature Engineering RF</span><strong>0.2396</strong><em>파생변수 반영</em><small class="pf-delta">−0.0021</small></div>
+  <i>→</i>
+  <div class="highlight"><span>Final RF Classifier EV</span><strong>0.2375</strong><em>이산형 target 구조 반영</em><small class="pf-delta best">−0.0042 · 총 1.74%↓</small></div>
+</div>
+<div class="two-col compact">
+  <div class="formula-box">MAE = (1/n) Σ |yᵢ − ŷᵢ|<br/>RMSE = √[(1/n) Σ (yᵢ − ŷᵢ)²]<br/>CV-RMSE = (1/K) Σ RMSEₖ</div>
+  <table class="tight-table">
+    <thead><tr><th>지표</th><th>값</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>RMSE</td><td>0.2375</td><td>최종 오차 기준</td></tr>
+      <tr><td>MAE</td><td>0.1978</td><td>평균 절대오차</td></tr>
+      <tr class="r2-row"><td>R²</td><td><b>0.034</b></td><td>⚠ 설명력 한계 — 환원불가 오차 하한</td></tr>
+      <tr><td>Baseline 개선</td><td><b>1.74%</b></td><td>기준선 대비 총 개선폭</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+
+<section class="slide " id="slide-math-a" data-title="수학적 근거 1 — 오차 분해·검증·신호 정량화" data-insight="RMSE²=Bias²+Variance+ε²에서 환원불가 오차 ε≈0.24가 성능 천장임을 보인다. Stratified KFold는 이산형 target의 분포를 fold마다 보존하며, MI와 Permutation Test는 신호 크기를 정보이론과 가설검정으로 각각 수량화한다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">MATHEMATICAL PROOF</div>
+      <div class="slide-count">15 / 23</div>
+    </div>
+    <h1>수학적 근거 1 — 오차 분해와 신호 정량화</h1>
+    <p class="subtitle">R²=0.034가 말하는 것: Bias-Variance-Irreducible 분해로 성능 천장을 증명한다</p>
+    <div class="content">
+<div class="math-proof-grid">
+
+  <div class="math-proof-card accent-navy">
+    <div class="mp-label">① 오차 분해 (Bias–Variance–Irreducible)</div>
+    <div class="formula-box" style="font-size:17px;line-height:1.8">
+      RMSE² = Bias²(ŷ) + Var(ŷ) + ε²<br/>
+      <span style="color:#12B7A3">환원불가 오차 ε ≈ √(1 − R²) × σ_y</span><br/>
+      σ_y = 0.2417,  R² = 0.034<br/>
+      <span style="color:#F2A541">∴ ε ≈ 0.2417 × √0.966 ≈ 0.2376</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">R²=0.034는 입력 변수로 설명 가능한 분산이 3.4%뿐임을 의미한다. 나머지 96.6%는 현재 피처로 줄일 수 없는 노이즈다.</p>
+  </div>
+
+  <div class="math-proof-card accent-mint">
+    <div class="mp-label">② Stratified 5-Fold CV</div>
+    <div class="formula-box" style="font-size:16px;line-height:1.8">
+      y ∈ {0.1, 0.3, …, 0.9}  →  pd.factorize(y)<br/>
+      CV-RMSE = (1/K) Σₖ RMSE_k,  K=5<br/>
+      <span style="color:#F2A541">Stratify → 각 fold에서 class 비율 보존</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">target이 이산형이므로 일반 KFold를 쓰면 특정 fold에 0.1이나 0.9가 몰릴 수 있다. Stratified는 모든 fold에서 동일한 class 분포를 유지해 평가 안정성을 높인다.</p>
+  </div>
+
+  <div class="math-proof-card accent-amber">
+    <div class="mp-label">③ Mutual Information — 신호 크기 정량화</div>
+    <div class="formula-box" style="font-size:16px;line-height:1.8">
+      I(X ; Y) = H(Y) − H(Y | X)<br/>
+      H(Y) = −Σ P(y) log P(y)<br/>
+      <span style="color:#12B7A3">MI(고객수, y) = 0.02989  →  약한 비선형 신호</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">MI=0이면 완전 무신호, MI가 클수록 예측 유용성이 높다. 최대 MI 0.02989는 신호가 존재하나 실용적 크기가 제한적임을 수치로 보여준다.</p>
+  </div>
+
+  <div class="math-proof-card accent-rose">
+    <div class="mp-label">④ Permutation Test — 가설 검정</div>
+    <div class="formula-box" style="font-size:16px;line-height:1.8">
+      H₀: 피처 ⊥ target  (무작위)<br/>
+      p = #{RMSE_shuffled ≤ RMSE_actual} / N<br/>
+      <span style="color:#F2A541">p = 0.000  →  H₀ 기각, 신호 존재 확인</span><br/>
+      단, RMSE_actual = 0.2401 vs baseline 0.2417<br/>
+      <span style="color:#12B7A3">통계적 유의 ≠ 실용적 유의</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">p=0.000은 신호가 존재함을 증명하지만, baseline 대비 개선이 0.64%에 불과해 통계적 유의가 서비스 성능으로 이어지지 않는다.</p>
+  </div>
+
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+
+<section class="slide " id="slide-math-b" data-title="수학적 근거 2 — 정보 엔트로피·OOD 거리·후처리" data-insight="Shannon 엔트로피로 모델의 예측 확신도를 수량화하고, 표준화 거리 D(x)로 외삽 위험을 탐지한다. Shrinkage는 alpha=1.00으로 선택되어 수축 없이 원 예측을 유지했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">MATHEMATICAL PROOF</div>
+      <div class="slide-count">16 / 23</div>
+    </div>
+    <h1>수학적 근거 2 — 엔트로피·OOD 거리·후처리</h1>
+    <p class="subtitle">예측값 하나 뒤에 있는 세 가지 수학 구조: 확신도 · 외삽 위험 · 수축 보정</p>
+    <div class="content">
+<div class="math-proof-grid">
+
+  <div class="math-proof-card accent-mint">
+    <div class="mp-label">① Shannon Entropy → 모델 확신도</div>
+    <div class="formula-box" style="font-size:16px;line-height:1.8">
+      H = −Σₖ P(cₖ|x) · log P(cₖ|x)<br/>
+      H_norm = H / log(K),  K=8<br/>
+      confidence = 1 − H_norm<br/>
+      <span style="color:#F2A541">확률이 한 class에 집중 → H↓ → 확신도↑</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">분류 모델이 8개 class에 균등하게 확률을 분산시키면 H_norm→1, confidence→0. 반대로 특정 class에 집중되면 confidence→1. 이 값이 riskFlags의 "모델 확신도" 기준이다.</p>
+  </div>
+
+  <div class="math-proof-card accent-navy">
+    <div class="mp-label">② OOD 거리 D(x) — 외삽 위험 탐지</div>
+    <div class="formula-box" style="font-size:16px;line-height:1.8">
+      z_j = (x_j − μ_j) / σ_j  (train 기준 표준화)<br/>
+      D(x) = √(Σⱼ z_j²)<br/>
+      <span style="color:#12B7A3">D ≤ q70: 학습 분포 내</span><br/>
+      <span style="color:#F2A541">D > q90: 외삽 위험 높음</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">마할라노비스 거리의 단순화 버전. train 피처의 평균·표준편차로 표준화 후 유클리드 거리를 계산한다. 70%·90% 분위수로 위험 구간을 구분했다.</p>
+  </div>
+
+  <div class="math-proof-card accent-amber">
+    <div class="mp-label">③ Shrinkage 후처리</div>
+    <div class="formula-box" style="font-size:16px;line-height:1.8">
+      ŷ_cal = ȳ + α(ŷ − ȳ),  α ∈ [0, 1.2]<br/>
+      α=0: 전체 평균 예측 (baseline)<br/>
+      α=1: 원 예측 유지<br/>
+      <span style="color:#12B7A3">rf_clf_ev_all: α=1.00 선택 → 수축 불필요</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">α<1이면 예측을 평균 쪽으로 수축해 과도한 변동을 줄인다. α=1.00 선택은 EV 모델의 예측이 이미 충분히 안정적임을 의미한다. rounding은 RMSE를 악화(0.2389)시켜 탈락했다.</p>
+  </div>
+
+  <div class="math-proof-card accent-rose">
+    <div class="mp-label">④ 전체 수식 집약</div>
+    <div class="formula-box" style="font-size:14px;line-height:1.85">
+      문제:  f(xᵢ) ≈ yᵢ,  yᵢ ∈ {0.1,…,0.9}<br/>
+      모델:  ŷ = Σₖ P(cₖ|x)·cₖ  (EV)<br/>
+      검증:  CV-RMSE = (1/5)Σ RMSEₖ = <span style="color:#F2A541">0.2375</span><br/>
+      한계:  R²=0.034,  ε≈0.24 (환원불가)<br/>
+      신뢰:  conf = 1−H_norm,  D(x) 분위수<br/>
+      결론:  <span style="color:#12B7A3">성공확률 X → 패턴 유사도 점수 ✓</span>
+    </div>
+    <p style="margin:10px 0 0;font-size:14px;color:#8093aa">이 프로젝트에서 사용한 모든 수학 도구의 집약. 문제 정의부터 한계 증명까지 하나의 수식 체계로 연결된다.</p>
+  </div>
+
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-14" data-title="잔차 분석과 평균 회귀 현상" data-insight="잔차 평균은 0에 가깝지만, 극단 class 0.1과 0.9에서 오차가 컸다. 이는 모델이 불확실한 대상을 평균 근처로 예측하는 평균 회귀 현상으로 해석할 수 있다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">INTERPRETATION</div>
+      <div class="slide-count">17 / 23</div>
+    </div>
+    <h1>잔차 분석과 평균 회귀 현상</h1>
+    <p class="subtitle">전체 편향은 작지만 극단 구간에서는 오차가 커졌다</p>
+    <div class="content">
+<div class="residual-layout">
+  <div class="u-chart">
+    <div class="u-bar tall"><span>0.1</span><b>0.4275</b></div>
+    <div class="u-bar mid"><span>0.3</span><b>0.226</b></div>
+    <div class="u-bar low"><span>0.5</span><b>0.039</b></div>
+    <div class="u-bar low2"><span>0.6</span><b>0.062</b></div>
+    <div class="u-bar mid"><span>0.8</span><b>0.254</b></div>
+    <div class="u-bar tall2"><span>0.9</span><b>0.3503</b></div>
+  </div>
+  <div class="residual-text">
+    <h3>평균 회귀 현상</h3>
+    <p>실제값은 0.1~0.9로 넓게 분포하지만, 예측값은 평균 근처로 수축된다. 그래서 낮은 class는 과대예측, 높은 class는 과소예측되기 쉽다.</p>
+    <div class="formula-box small">eᵢ = yᵢ − ŷᵢ<br/>residual mean = -0.0002</div>
+  </div>
+</div>
+<div class="callout amber">점수는 단독 확률처럼 설명하지 않고, 오차 구조와 함께 해석해야 한다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-15" data-title="산업군별 RMSE 분석" data-insight="교수님 코멘트에 답하기 위해 산업군별 오차를 따로 계산했다. 에너지·ESG와 AI·기술·핀테크는 상대적으로 안정적이었고, Unknown은 해석 주의가 필요했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">INTERPRETATION</div>
+      <div class="slide-count">18 / 23</div>
+    </div>
+    <h1>산업군별 RMSE 분석</h1>
+    <p class="subtitle">디스플레이 외 영역 확장은 가능하지만, 산업군별 신뢰도 차이를 함께 봐야 한다</p>
+    <div class="content">
+<div class="two-col wide-left">
+  <div class="industry-visual">
+    <table class="tight-table">
+      <thead><tr><th>산업군</th><th>n</th><th>RMSE</th><th>해석</th></tr></thead>
+      <tbody>
+        <tr><td>에너지·ESG</td><td>396</td><td>0.2159</td><td>가장 안정적</td></tr>
+        <tr><td>AI·기술·핀테크·에듀테크</td><td>1,453</td><td>0.2326</td><td>전체보다 안정적</td></tr>
+        <tr><td>이커머스·물류·푸드테크·게임</td><td>1,354</td><td>0.2379</td><td>전체와 유사</td></tr>
+        <tr><td>헬스케어·바이오</td><td>316</td><td>0.2396</td><td>전체와 유사</td></tr>
+        <tr><td>Unknown</td><td>857</td><td>0.2534</td><td>해석 주의</td></tr>
+      </tbody>
+    </table>
+    <div class="industry-bars">
+      <div class="industry-ref-top">← 막대가 길수록 오차(RMSE)가 작아 예측이 안정적</div>
+      <div class="industry-bar"><span>에너지·ESG</span><div class="track"><div class="fill" style="--w:95%"></div></div><b>0.2159 ✓</b></div>
+      <div class="industry-bar"><span>AI·기술·핀테크</span><div class="track"><div class="fill" style="--w:59%"></div></div><b>0.2326</b></div>
+      <div class="industry-bar"><span>이커머스·물류</span><div class="track"><div class="fill" style="--w:48%"></div></div><b>0.2379</b></div>
+      <div class="industry-bar"><span>헬스케어·바이오</span><div class="track"><div class="fill" style="--w:44%"></div></div><b>0.2396</b></div>
+      <div class="industry-bar warn"><span>Unknown</span><div class="track"><div class="fill" style="--w:15%"></div></div><b>0.2534 ⚠</b></div>
+      <div class="industry-ref">막대 = 안정성 지표 (RMSE 역순). 짧을수록 예측 불확실성 높음.</div>
+    </div>
+  </div>
+  <div>
+    <div class="industry-map">
+      <button data-ind="energy" class="ind active">에너지·ESG</button>
+      <button data-ind="tech" class="ind">AI·기술·핀테크</button>
+      <button data-ind="unknown" class="ind">Unknown</button>
+      <div id="industryDetail" class="industry-detail">에너지·ESG는 RMSE 0.2159로 가장 안정적이었다. 환경·ESG 관점의 확장 가능성을 보여준다.</div>
+    </div>
+    <div class="callout soft mt"><b>해석 원칙</b><br/>산업군별 RMSE는 산업의 우열이 아니라, 이 데이터 안에서 모델이 얼마나 안정적으로 작동했는지를 나타낸다.</div>
+  </div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-16" data-title="변수 중요도 해석" data-insight="상위 변수는 기업가치대비투자금, 고객당매출, 직원당매출처럼 효율성을 나타내는 비율형 지표였다. 이는 경제학적 피처 설계가 해석 가능한 결과로 이어졌음을 보여준다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">INTERPRETATION</div>
+      <div class="slide-count">19 / 23</div>
+    </div>
+    <h1>변수 중요도 해석</h1>
+    <p class="subtitle">최종 모델은 규모보다 효율성·가치평가 지표를 많이 참고했다</p>
+    <div class="content">
+<div class="two-col balanced">
+  <div>
+    <h3>상위 중요 변수 TOP 10</h3>
+    <div class="importance-list">
+      <div style="--w:100"><span>기업가치대비투자금</span><b>0.0438</b></div>
+      <div style="--w:98"><span>고객당매출</span><b>0.0430</b></div>
+      <div style="--w:97"><span>기업가치대비매출</span><b>0.0427</b></div>
+      <div style="--w:94"><span>직원당투자금</span><b>0.0414</b></div>
+      <div style="--w:94"><span>직원당매출</span><b>0.0412</b></div>
+      <div style="--w:93"><span>투자대비매출</span><b>0.0410</b></div>
+    </div>
+  </div>
+  <div class="concept-diagram">
+    <div class="circle-grid">
+      <div class="circle c1">규모</div>
+      <div class="circle c2">효율</div>
+      <div class="circle c3">시장반응</div>
+      <div class="circle c4">가치평가</div>
+    </div>
+    <p>최종 중요 변수는 단순 규모보다<br/>비율·효율성 지표에 집중됐다</p>
+  </div>
+</div>
+<div class="callout mint">변수 중요도는 인과관계가 아니라 예측 기여도다. “이 변수가 성공을 만든다”가 아니라 “모델이 이 지표를 참고했다”고 해석한다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-17" data-title="해석 책임성: companies_v2 품질 검토" data-insight="companies_v2에서는 modelConfidence와 dataReliability를 분리했다. 점수가 높아도 결측치가 많거나 외삽 위험이 높으면 overallConfidence를 주의로 표시한다. 이는 분석 결과를 과장하지 않기 위한 설계다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">INTERPRETATION</div>
+      <div class="slide-count">20 / 23</div>
+    </div>
+    <h1>해석 책임성: companies_v2 품질 검토</h1>
+    <p class="subtitle">점수만 제시하지 않고, 해석 신뢰도와 위험 플래그를 함께 설계했다</p>
+    <div class="content">
+<div class="risk-flow">
+  <div class="score-node">successScore<br/><b>성장기업 패턴 유사도</b></div>
+  <div class="plus">+</div>
+  <div class="score-node">modelConfidence<br/><b>확률분포 기반</b></div>
+  <div class="plus">+</div>
+  <div class="score-node">dataReliability<br/><b>결측·OOD 기반</b></div>
+  <div class="equals">=</div>
+  <div class="score-node final">overallConfidence<br/><b>해석 신뢰도</b></div>
+</div>
+<div class="two-col compact">
+  <table class="tight-table">
+    <thead><tr><th>companies_v2 품질</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td>전체 행 수</td><td>1,755</td></tr>
+      <tr><td>overallConfidence = 주의</td><td>176</td></tr>
+      <tr><td>Unknown 중 A등급</td><td>85</td></tr>
+      <tr><td>successScore 평균</td><td>0.5324</td></tr>
+    </tbody>
+  </table>
+  <div class="quote-card">
+    <b>발표 문장 수정</b>
+    <p>본 결과는 미래 성공을 단정하는 예측모델이라기보다, 성장기업 패턴과의 유사도를 수치화하고 해석 범위를 함께 제시하는 <b>분석모델</b>로 접근하는 것이 바람직하다.</p>
+  </div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-18" data-title="중간발표와 최종발표의 차이" data-insight="중간발표가 모델과 서비스 가능성을 보여준 단계였다면, 최종발표는 기준선·신호·잔차·산업군 분석을 통해 모델의 활용 범위를 정의한 단계다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">CONCLUSION</div>
+      <div class="slide-count">21 / 23</div>
+    </div>
+    <h1>중간발표와 최종발표의 차이</h1>
+    <p class="subtitle">가능성 제시에서 신뢰성 검증으로 분석의 깊이가 바뀌었다</p>
+    <div class="content">
+<div class="comparison-board">
+  <div class="comparison-col midterm">
+    <h3>중간발표</h3>
+    <ul>
+      <li>RF/XGBoost/Soft Voting 중심</li>
+      <li>MAE와 5-Fold CV 중심 검증</li>
+      <li>서비스 화면 구상 중심</li>
+      <li>모델 간 비교는 있으나 baseline 해석은 부족</li>
+    </ul>
+  </div>
+  <div class="comparison-arrow">→</div>
+  <div class="comparison-col final">
+    <h3>최종발표</h3>
+    <ul>
+      <li>Baseline 대비 개선폭 검증</li>
+      <li>신호·데이터 양·분포 차이 원인 분해</li>
+      <li>피처 엔지니어링과 Expected Value 모델</li>
+      <li>잔차·산업군·risk flag로 해석 범위 정의</li>
+    </ul>
+  </div>
+</div>
+<div class="bottom-statement small">최종 발표의 핵심은 “서비스를 만들었다”가 아니라 “예측값을 어디까지 해석할 수 있는지 검증했다”는 점이다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-19" data-title="최종 결론" data-insight="최종 결과는 RMSE 0.2375라는 숫자만이 아니다. 기준선 설정, 신호 진단, 피처 설계, target 구조 반영, 잔차와 산업군 분석을 통해 점수의 의미와 한계를 동시에 제시했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">CONCLUSION</div>
+      <div class="slide-count">22 / 23</div>
+    </div>
+    <h1>최종 결론</h1>
+    <p class="subtitle">성능 개선보다 더 중요한 성과는 “해석 가능한 범위”를 정의한 것이다</p>
+    <div class="content">
+<div class="conclusion-grid">
+  <div class="conclusion-card"><b>1</b><h3>Baseline</h3><p>평균 예측 0.2417을 기준선으로 세워 모델 성능을 재해석했다.</p></div>
+  <div class="conclusion-card"><b>2</b><h3>Signal</h3><p>신호는 존재하지만 실용적 크기는 작다는 한계를 확인했다.</p></div>
+  <div class="conclusion-card"><b>3</b><h3>Model</h3><p>8개 이산 target 구조를 반영한 Expected Value 모델이 가장 안정적이었다.</p></div>
+  <div class="conclusion-card"><b>4</b><h3>Residual</h3><p>극단 class에서 평균 회귀 현상을 확인해 점수 해석 범위를 제한했다.</p></div>
+  <div class="conclusion-card"><b>5</b><h3>Segment</h3><p>산업군별 안정성 차이를 확인해 확장 가능성을 조건부로 제시했다.</p></div>
+  <div class="conclusion-card"><b>6</b><h3>Responsibility</h3><p>점수와 함께 신뢰도·위험 플래그를 제공하는 구조로 정리했다.</p></div>
+</div>
+<div class="final-claim">최종 결론: 이 프로젝트는 기업의 미래를 단정하는 모델이 아니라, <b>성장기업 패턴의 유사도를 수학적으로 검증하고 해석하는 분석 프로젝트</b>다.</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+<section class="slide " id="slide-20" data-title="예상 질문과 답변" data-insight="Q&A의 핵심은 성능을 방어하는 것이 아니라, 모델을 어떤 조건에서 해석할 수 있는지 설명하는 것이다. 이 프로젝트는 한계를 숨기지 않고 분석 설계에 반영했다.">
+  <div class="slide-inner">
+    <div class="slide-head">
+      <div class="eyebrow">CONCLUSION</div>
+      <div class="slide-count">23 / 23</div>
+    </div>
+    <h1>예상 질문과 답변</h1>
+    <p class="subtitle">질문을 받으면 성능 수치보다 검증 구조와 해석 범위로 답한다</p>
+    <div class="content">
+<div class="qa-grid">
+  <div class="flip" tabindex="0"><div class="front">Q. RMSE가 낮으면 무조건 좋은가?</div><div class="back">A. 낮을수록 좋지만 baseline 대비 개선폭, fold 안정성, 잔차 구조를 함께 봐야 한다.</div></div>
+  <div class="flip" tabindex="0"><div class="front">Q. 이 점수는 실제 성공확률인가?</div><div class="back">A. 아니다. 학습 데이터에서 관찰된 성장기업 패턴과의 유사도 점수로 해석한다.</div></div>
+  <div class="flip" tabindex="0"><div class="front">Q. 왜 Expected Value 모델인가?</div><div class="back">A. target이 8개 이산값이므로 class 확률의 기대값을 계산하는 방식이 구조적으로 적합했다.</div></div>
+  <div class="flip" tabindex="0"><div class="front">Q. R²가 낮으면 실패인가?</div><div class="back">A. 강한 설명모델은 아니지만, baseline 대비 개선과 해석 범위 정의가 핵심 성과다.</div></div>
+  <div class="flip" tabindex="0"><div class="front">Q. 데이터 양이 부족한 것 아닌가?</div><div class="back">A. Learning Curve에서 75%→100% 개선폭이 작아 데이터 양 부족을 주원인으로 보지 않았다.</div></div>
+  <div class="flip" tabindex="0"><div class="front">Q. train/test 분포가 달라서 그런가?</div><div class="back">A. 엄격한 Adversarial AUC가 0.5298로 0.5에 가까워 분포 차이는 작다고 판단했다.</div></div>
+  <div class="flip" tabindex="0"><div class="front">Q. 디스플레이 외 산업도 가능한가?</div><div class="back">A. 가능하지만 산업군별 RMSE와 외삽 위험을 함께 봐야 한다. 모든 산업에 동일 신뢰도로 적용하지 않는다.</div></div>
+  <div class="flip" tabindex="0"><div class="front">Q. 수학과 캡스톤에서의 수학적 기여는?</div><div class="back">A. 오차함수, 교차검증, 잔차, 기대값 모델, OOD 거리로 예측값의 신뢰 범위를 수학적으로 검증했다.</div></div>
+</div>
+</div>
+    <button class="insight-btn" data-insight-open>해석 인사이트</button>
+  </div>
+</section>
+</div>
+<div class="dots" id="dots"><button class="dot" data-goto="0" title="표지"></button><button class="dot" data-goto="1" title="AI 기반 숨은 성장기업 발굴"></button><button class="dot" data-goto="2" title="프로젝트 시작점과 문제 재정의"></button><button class="dot" data-goto="3" title="데이터 구조와 첫 번째 관찰"></button><button class="dot" data-goto="4" title="중간발표까지의 상태와 남은 질문"></button><button class="dot" data-goto="5" title="중간발표 이후 트러블슈팅 로드맵"></button><button class="dot" data-goto="6" title="트러블슈팅 1"></button><button class="dot" data-goto="7" title="트러블슈팅 2"></button><button class="dot" data-goto="8" title="트러블슈팅 3"></button><button class="dot" data-goto="9" title="Feature set 검증"></button><button class="dot" data-goto="10" title="트러블슈팅 4"></button><button class="dot" data-goto="11" title="최종 모델 비교"></button><button class="dot" data-goto="12" title="추가 방법론 점검"></button><button class="dot" data-goto="13" title="최종 성능과 수학적 검증"></button><button class="dot" data-goto="14" title="수학적 근거 1"></button><button class="dot" data-goto="15" title="수학적 근거 2"></button><button class="dot" data-goto="16" title="잔차 분석"></button><button class="dot" data-goto="17" title="산업군별 RMSE"></button><button class="dot" data-goto="18" title="변수 중요도"></button><button class="dot" data-goto="19" title="해석 책임성"></button><button class="dot" data-goto="20" title="중간발표와 최종발표의 차이"></button><button class="dot" data-goto="21" title="최종 결론"></button><button class="dot" data-goto="22" title="예상 질문과 답변"></button></div>
+<div class="nav-arrows"><button id="prevBtn">‹</button><button id="nextBtn">›</button></div>
+<div class="insight-sheet" id="insightSheet"><div class="bubble-tail"></div><button id="insightClose">×</button><h3>해석 인사이트</h3><p id="insightText"></p></div>
+<div class="outline" id="outline"><div class="outline-panel"><div class="outline-head"><h2>슬라이드 목차</h2><button id="outlineClose">×</button></div><div class="outline-grid"><button class="jump" data-target="slide-cover"><span>01</span>표지</button><button class="jump" data-target="slide-1"><span>02</span>AI 기반 숨은 성장기업 발굴</button><button class="jump" data-target="slide-2"><span>03</span>프로젝트 시작점과 문제 재정의</button><button class="jump" data-target="slide-3"><span>04</span>데이터 구조와 첫 번째 관찰</button><button class="jump" data-target="slide-4"><span>05</span>중간발표까지의 상태와 남은 질문</button><button class="jump" data-target="slide-5"><span>06</span>중간발표 이후 트러블슈팅 로드맵</button><button class="jump" data-target="slide-6"><span>07</span>트러블슈팅 1 — Baseline 없이 성능을 말하면 위험하다</button><button class="jump" data-target="slide-7"><span>08</span>트러블슈팅 2 — 신호가 약한가, 데이터가 부족한가, 분포가 다른가?</button><button class="jump" data-target="slide-8"><span>09</span>트러블슈팅 3 — 피처를 많이 만들면 성능이 오를까?</button><button class="jump" data-target="slide-9"><span>10</span>Feature set 검증</button><button class="jump" data-target="slide-10"><span>11</span>트러블슈팅 4 — 회귀 문제가 아니라 이산형 target 문제일 수 있다</button><button class="jump" data-target="slide-11"><span>12</span>최종 모델 비교</button><button class="jump" data-target="slide-12"><span>13</span>추가 방법론 점검</button><button class="jump" data-target="slide-13"><span>14</span>최종 성능과 수학적 검증</button><button class="jump" data-target="slide-math-a"><span>15</span>수학적 근거 1 — 오차분해·MI·Permutation</button><button class="jump" data-target="slide-math-b"><span>16</span>수학적 근거 2 — 엔트로피·OOD·Shrinkage</button><button class="jump" data-target="slide-14"><span>17</span>잔차 분석과 평균 회귀 현상</button><button class="jump" data-target="slide-15"><span>18</span>산업군별 RMSE 분석</button><button class="jump" data-target="slide-16"><span>19</span>변수 중요도 해석</button><button class="jump" data-target="slide-17"><span>20</span>해석 책임성: companies_v2 품질 검토</button><button class="jump" data-target="slide-18"><span>21</span>중간발표와 최종발표의 차이</button><button class="jump" data-target="slide-19"><span>22</span>최종 결론</button><button class="jump" data-target="slide-20"><span>23</span>예상 질문과 답변</button></div></div></div>
+<aside class="drawer" id="glossaryDrawer"><button class="close-drawer" id="glossaryClose">×</button><h2>용어 사전</h2>
+  <div class="term"><b>Baseline</b><p>모델이 최소한 넘어야 하는 기준선. 이 프로젝트에서는 전체 평균 예측 RMSE 0.2417이 핵심 기준선이다.</p></div>
+  <div class="term"><b>MAE</b><p>예측값과 실제값 차이의 절댓값 평균. 평균적으로 얼마나 틀렸는지 직관적으로 보여준다.</p></div>
+  <div class="term"><b>RMSE</b><p>오차 제곱 평균의 제곱근. 큰 오차에 더 민감하므로 극단값 예측 실패를 잘 드러낸다.</p></div>
+  <div class="term"><b>OOF</b><p>Out-of-Fold 예측. 교차검증에서 각 validation fold에 대해 얻은 예측값을 모은 것이다.</p></div>
+  <div class="term"><b>Expected Value</b><p>각 class의 확률과 class 값을 곱해 더한 기대값. 성공확률이 이산형일 때 유용하다.</p></div>
+  <div class="term"><b>Residual</b><p>잔차 eᵢ = yᵢ − ŷᵢ. 모델이 어디서 과대예측 또는 과소예측하는지 분석한다.</p></div>
+  <div class="term"><b>Adversarial Validation</b><p>train과 test를 구분하는 별도 모델을 만들어 분포 차이를 진단하는 방법이다.</p></div>
+  <div class="term"><b>OOD distance</b><p>새 데이터가 학습 데이터 분포에서 얼마나 떨어져 있는지 보는 표준화 거리다.</p></div>
+</aside>
+<script>
+(function(){
+'use strict';
+const slides=[...document.querySelectorAll('.slide')];
+const dots=[...document.querySelectorAll('.dot')];
+const progress=document.getElementById('progress');
+const sheet=document.getElementById('insightSheet');
+const insightText=document.getElementById('insightText');
+let current=0; const themes=['','warm','mint']; let themeIndex=0;
+function show(i){ current=(i+slides.length)%slides.length; slides.forEach((s,idx)=>s.classList.toggle('active',idx===current)); dots.forEach((d,idx)=>d.classList.toggle('active',idx===current)); progress.style.width=((current+1)/slides.length*100)+'%'; sheet.classList.remove('open'); }
+function next(){ show(current+1); }
+function prev(){ show(current-1); }
+document.getElementById('nextBtn').addEventListener('click',next);
+document.getElementById('prevBtn').addEventListener('click',prev);
+dots.forEach((d,i)=>d.addEventListener('click',()=>show(i)));
+document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next();} if(e.key==='ArrowLeft'){prev();} if(e.key==='Home'){e.preventDefault();show(0);} if(e.key.toLowerCase()==='o'){toggleOutline(true);} if(e.key.toLowerCase()==='g'){toggleGlossary(true);} if(e.key.toLowerCase()==='i'){openInsight();} if(e.key==='Escape'){toggleOutline(false);toggleGlossary(false);sheet.classList.remove('open');} });
+function openInsight(){ const s=slides[current]; insightText.textContent=s.dataset.insight||'이 슬라이드의 핵심 해석을 확인합니다.'; sheet.classList.add('open'); }
+document.querySelectorAll('[data-insight-open]').forEach(btn=>btn.addEventListener('click',openInsight));
+document.getElementById('insightClose').addEventListener('click',()=>sheet.classList.remove('open'));
+const outline=document.getElementById('outline'); function toggleOutline(open){ outline.classList.toggle('open',open); }
+document.getElementById('outlineBtn').addEventListener('click',()=>toggleOutline(true)); document.getElementById('outlineClose').addEventListener('click',()=>toggleOutline(false));
+document.querySelectorAll('.jump').forEach(btn=>btn.addEventListener('click',()=>{ const target=btn.dataset.target; const idx=slides.findIndex(s=>s.id===target); if(idx>=0){show(idx);toggleOutline(false);} }));
+const glossary=document.getElementById('glossaryDrawer'); function toggleGlossary(open){ glossary.classList.toggle('open',open); }
+document.getElementById('glossaryBtn').addEventListener('click',()=>toggleGlossary(true)); document.getElementById('glossaryClose').addEventListener('click',()=>toggleGlossary(false));
+document.getElementById('themeBtn').addEventListener('click',()=>{ document.body.classList.remove('warm','mint'); themeIndex=(themeIndex+1)%themes.length; if(themes[themeIndex]) document.body.classList.add(themes[themeIndex]); });
+const shortcutTip=document.getElementById('shortcutTip');
+document.getElementById('shortcutBtn').addEventListener('click',()=>shortcutTip.classList.toggle('open'));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') shortcutTip.classList.remove('open'); },true);
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{ const id=btn.dataset.tab; document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn)); document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+id)); }));
+const presets={ balanced:[.04,.08,.12,.25,.26,.15,.07,.03], high:[.02,.03,.05,.07,.12,.21,.28,.22], uncertain:[.12,.12,.13,.13,.14,.13,.12,.11]};
+const classes=[0.1,0.3,0.4,0.5,0.6,0.7,0.8,0.9]; const evBars=document.getElementById('evBars'); const evValue=document.getElementById('evValue');
+function renderEV(name){ if(!evBars) return; const p=presets[name]; evBars.innerHTML=''; let ev=0; p.forEach((v,i)=>{ev+=v*classes[i]; const bar=document.createElement('div'); bar.style.height=Math.max(8, v*440)+'px'; bar.innerHTML='<span>'+classes[i]+'</span>'; bar.title='P('+classes[i]+') = '+v.toFixed(2); evBars.appendChild(bar);}); evValue.textContent=ev.toFixed(3); document.querySelectorAll('.ev').forEach(b=>b.classList.toggle('active',b.dataset.preset===name)); }
+document.querySelectorAll('.ev').forEach(btn=>btn.addEventListener('click',()=>renderEV(btn.dataset.preset))); renderEV('balanced');
+const industryText={ energy:'에너지·ESG는 RMSE 0.2159로 가장 안정적이었다. 환경·ESG 관점의 확장 가능성을 보여준다.', tech:'AI·기술·핀테크·에듀테크는 RMSE 0.2326으로 전체보다 안정적이다. 데이터·금융 직무 관심 학생에게 설명하기 좋은 축이다.', unknown:'Unknown은 RMSE 0.2534로 가장 불안정하다. 분야 결측이 있으면 점수보다 해석 주의 플래그가 중요하다.' };
+document.querySelectorAll('.ind').forEach(btn=>btn.addEventListener('click',()=>{ document.querySelectorAll('.ind').forEach(b=>b.classList.toggle('active',b===btn)); const box=document.getElementById('industryDetail'); if(box) box.textContent=industryText[btn.dataset.ind]; }));
+show(0);
+})();
+</script>
+</body>
+</html>
+

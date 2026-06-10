@@ -1,0 +1,897 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>성장기업 패턴 유사도 분석 · 데이터 분석 캡스톤 프로젝트</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23071733'/%3E%3Cpath d='M13 41l11-13 8 7 15-18' fill='none' stroke='%2319848a' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --navy: #071733;
+      --navy-2: #0e2748;
+      --teal: #147f83;
+      --teal-2: #1aa09c;
+      --amber: #d99b2b;
+      --ink: #0f1d33;
+      --muted: #617086;
+      --line: #dfe7ef;
+      --paper: #fbfbf9;
+      --panel: #ffffff;
+      --soft: #ecf6f5;
+      --shadow: 0 24px 60px rgba(7, 23, 51, .14);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 5% 58%, rgba(20,127,131,.13), transparent 18%),
+        radial-gradient(circle at 88% 18%, rgba(217,155,43,.10), transparent 22%),
+        linear-gradient(135deg, #fff 0%, #f8fbfb 54%, #f6f8f7 100%);
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      width: min(1600px, calc(100% - 56px));
+      margin: 0 auto;
+      padding: 28px 0 30px;
+      position: relative;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      left: -94px;
+      top: 172px;
+      width: 180px;
+      height: 360px;
+      background:
+        linear-gradient(135deg, transparent 0 43%, rgba(20,127,131,.18) 43% 56%, transparent 56%),
+        repeating-linear-gradient(135deg, transparent 0 46px, rgba(20,127,131,.22) 47px 48px, transparent 49px 92px);
+      opacity: .7;
+      pointer-events: none;
+    }
+
+    .page::after {
+      content: "";
+      position: absolute;
+      left: -44px;
+      bottom: 314px;
+      width: 82px;
+      height: 82px;
+      background-image: radial-gradient(circle, rgba(20,127,131,.42) 1.7px, transparent 1.8px);
+      background-size: 16px 16px;
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 54px;
+      margin-bottom: 34px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--navy);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .logo {
+      width: 72px;
+      height: 36px;
+    }
+
+    .brand strong {
+      font-size: 24px;
+      letter-spacing: -.02em;
+    }
+
+    .brand span {
+      padding-left: 16px;
+      border-left: 1px solid #cfd9e4;
+      color: #46546a;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      color: #26344c;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .nav a {
+      padding: 8px 0;
+      border-bottom: 2px solid transparent;
+    }
+
+    .nav a:hover {
+      color: var(--teal);
+      border-color: var(--teal);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(500px, .78fr) minmax(690px, 1.22fr);
+      gap: 36px;
+      align-items: center;
+      min-height: 560px;
+    }
+
+    .hero-copy {
+      padding-left: 76px;
+    }
+
+    .overline {
+      color: var(--teal);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+
+    .overline::after {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 3px;
+      margin-top: 18px;
+      background: var(--teal);
+    }
+
+    h1 {
+      margin: 22px 0 22px;
+      color: var(--navy);
+      font-size: clamp(60px, 5vw, 82px);
+      line-height: 1.03;
+      letter-spacing: -.055em;
+      font-weight: 950;
+      word-break: keep-all;
+    }
+
+    .lead {
+      margin: 0 0 30px;
+      padding-left: 18px;
+      border-left: 7px solid var(--teal-2);
+      color: #19283c;
+      font-size: 24px;
+      line-height: 1.45;
+      letter-spacing: -.03em;
+      word-break: keep-all;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      max-width: 560px;
+    }
+
+    .kpi {
+      min-height: 136px;
+      padding: 22px 20px 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 12px 26px rgba(7,23,51,.08);
+    }
+
+    .kpi span {
+      display: block;
+      color: #3e4a5d;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .kpi strong {
+      display: block;
+      margin-top: 14px;
+      color: var(--navy);
+      font-size: 36px;
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+
+    .kpi.highlight strong { color: var(--teal); }
+
+    .kpi .mini-icon {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 36px;
+      margin-top: 22px;
+      border-radius: 10px;
+      background: #eef6f6;
+      color: var(--teal);
+      font-weight: 900;
+    }
+
+    .preview-shell {
+      display: grid;
+      grid-template-columns: 158px 1fr;
+      min-height: 560px;
+      border-radius: 26px;
+      background: rgba(255,255,255,.82);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(7,23,51,.08);
+    }
+
+    .slide-rail {
+      padding: 78px 16px 24px;
+      background: linear-gradient(180deg, #071733, #0b1e3d);
+      color: rgba(255,255,255,.78);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .rail-menu {
+      display: grid;
+      gap: 10px;
+    }
+
+    .rail-item {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .rail-item.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--teal), var(--teal-2));
+    }
+
+    .rail-icon {
+      width: 18px;
+      height: 18px;
+      border: 2px solid currentColor;
+      border-radius: 4px;
+      position: relative;
+    }
+
+    .rail-icon::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 5px;
+      width: 8px;
+      height: 5px;
+      border-left: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(-45deg);
+    }
+
+    .rail-bottom {
+      border-top: 1px solid rgba(255,255,255,.12);
+      padding-top: 18px;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .rail-arrows {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .rail-arrows i {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      font-style: normal;
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .preview {
+      padding: 28px 28px 24px;
+      background: rgba(255,255,255,.88);
+      position: relative;
+    }
+
+    .dataset-card {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 126px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 0 8px 20px rgba(7,23,51,.06);
+      font-weight: 900;
+    }
+
+    .dataset-card span {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--navy);
+      font-size: 13px;
+    }
+
+    .dataset-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: #47556b;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .dataset-row b { color: var(--teal); }
+
+    .preview h2 {
+      margin: 0 0 18px;
+      color: var(--ink);
+      font-size: 20px;
+      letter-spacing: -.02em;
+    }
+
+    .chart-card,
+    .timeline-card,
+    .company-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(7,23,51,.05);
+    }
+
+    .chart-card {
+      padding: 22px 22px 16px;
+      min-height: 286px;
+    }
+
+    .chart-title {
+      margin-bottom: 14px;
+      color: var(--navy);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .bar-chart {
+      display: grid;
+      grid-template-columns: 58px repeat(5, 1fr);
+      gap: 13px;
+      min-height: 214px;
+      align-items: end;
+    }
+
+    .axis {
+      height: 188px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #344255;
+      font-size: 13px;
+      border-right: 1px solid #a8b4c2;
+      padding-right: 9px;
+    }
+
+    .bar-wrap {
+      height: 188px;
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      position: relative;
+    }
+
+    .bar {
+      width: 58px;
+      min-height: 20px;
+      background: #cfd6de;
+      position: relative;
+    }
+
+    .bar.dark { background: var(--navy); }
+    .bar.teal { background: linear-gradient(180deg, var(--teal-2), var(--teal)); }
+
+    .bar b {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    .bar-label {
+      min-height: 38px;
+      margin-top: 8px;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.25;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1.08fr .72fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .timeline-card {
+      padding: 20px;
+      min-height: 178px;
+    }
+
+    .timeline-card h3,
+    .company-card h3 {
+      margin: 0 0 22px;
+      color: var(--ink);
+      font-size: 17px;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      align-items: start;
+      gap: 0;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 22px;
+      left: 32px;
+      right: 32px;
+      height: 3px;
+      background: #2b6c74;
+      z-index: 0;
+    }
+
+    .step {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 12px;
+      line-height: 1.25;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .step i {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border: 2px solid #2b6c74;
+      border-radius: 50%;
+      background: #fff;
+      color: #2b6c74;
+      font-style: normal;
+      font-size: 12px;
+    }
+
+    .step.current i {
+      border-color: var(--teal);
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .company-card {
+      padding: 20px;
+      min-height: 178px;
+    }
+
+    .company-card .name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .detail-btn {
+      border: 1px solid rgba(20,127,131,.45);
+      border-radius: 8px;
+      padding: 7px 13px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .score-title {
+      color: #48566a;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .score {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 8px 0 12px;
+      color: var(--teal);
+      font-weight: 950;
+      font-size: 34px;
+    }
+
+    .score small {
+      color: var(--ink);
+      font-size: 18px;
+    }
+
+    .slider {
+      height: 9px;
+      border-radius: 999px;
+      background: #dfe7ef;
+      position: relative;
+      margin: 18px 0 9px;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 73%;
+      border-radius: inherit;
+      background: var(--teal);
+    }
+
+    .slider::after {
+      content: "";
+      position: absolute;
+      left: 72%;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--teal);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 4px rgba(20,127,131,.12);
+    }
+
+    .scale {
+      display: flex;
+      justify-content: space-between;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .cta-band {
+      display: grid;
+      grid-template-columns: 390px 390px 1fr;
+      align-items: center;
+      gap: 14px;
+      margin-top: 44px;
+      padding: 26px 34px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 12px 28px rgba(7,23,51,.06);
+    }
+
+    .btn {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      border-radius: 8px;
+      border: 2px solid var(--teal);
+      font-size: 22px;
+      font-weight: 950;
+      letter-spacing: -.02em;
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+
+    .btn.secondary {
+      color: var(--teal);
+      background: #fff;
+    }
+
+    .btn svg {
+      width: 30px;
+      height: 30px;
+    }
+
+    .arrow {
+      margin-left: auto;
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .warning {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding-left: 38px;
+      border-left: 1px solid var(--line);
+      color: #344255;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .shield {
+      width: 36px;
+      height: 42px;
+      color: var(--amber);
+    }
+
+    .warning b { color: var(--amber); }
+
+    .info-sections {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin: 34px 0 0;
+    }
+
+    .info-card {
+      min-height: 170px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.86);
+      box-shadow: 0 10px 22px rgba(7,23,51,.05);
+      padding: 22px;
+    }
+
+    .info-card span {
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .08em;
+    }
+
+    .info-card h2 {
+      margin: 12px 0 10px;
+      color: var(--navy);
+      font-size: 20px;
+    }
+
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      word-break: keep-all;
+    }
+
+    @media (max-width: 1280px) {
+      .page { width: min(100% - 36px, 1180px); }
+      .hero { grid-template-columns: 1fr; gap: 34px; }
+      .hero-copy { padding-left: 24px; }
+      .preview-shell { grid-template-columns: 148px 1fr; }
+      .cta-band { grid-template-columns: 1fr 1fr; }
+      .warning { grid-column: 1 / -1; padding-left: 0; border-left: 0; }
+      .info-sections { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 760px) {
+      .topbar, .brand, .nav, .kpis, .preview-grid, .cta-band, .info-sections { grid-template-columns: 1fr; flex-direction: column; align-items: flex-start; }
+      .nav { gap: 18px; }
+      .brand span { border-left: 0; padding-left: 0; }
+      .hero-copy { padding-left: 0; }
+      h1 { font-size: 58px; }
+      .lead { font-size: 22px; }
+      .preview-shell { grid-template-columns: 1fr; }
+      .slide-rail { display: none; }
+      .bar-chart { grid-template-columns: 42px repeat(5, 1fr); gap: 8px; }
+      .bar { width: 38px; }
+      .timeline { grid-template-columns: repeat(4, 1fr); row-gap: 18px; }
+      .timeline::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar" id="top">
+      <a class="brand" href="#top" aria-label="홈으로 이동">
+        <svg class="logo" viewBox="0 0 96 48" aria-hidden="true">
+          <path d="M6 32 L24 14 L38 28 L58 8 L78 26 L90 14" fill="none" stroke="#147f83" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M62 8 H76 V22" fill="none" stroke="#147f83" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="24" cy="14" r="3.5" fill="#147f83"/>
+          <circle cx="58" cy="8" r="3.5" fill="#147f83"/>
+        </svg>
+        <strong>데이터 분석 캡스톤 프로젝트</strong>
+        <span>기업 성공확률 예측 리서치</span>
+      </a>
+      <nav class="nav" aria-label="페이지 내비게이션">
+        <a href="#project">프로젝트 소개</a>
+        <a href="#approach">분석 접근</a>
+        <a href="#insight">주요 인사이트</a>
+        <a href="#summary">결과 요약</a>
+      </nav>
+    </header>
+
+    <main class="hero">
+      <section class="hero-copy" aria-labelledby="hero-title">
+        <div class="overline">예측을 넘어서, 검증과 해석으로</div>
+        <h1 id="hero-title">성장기업 패턴<br />유사도 분석</h1>
+        <p class="lead">기업 성공확률 예측을<br />검증 가능한 데이터 분석 문제로 재정의</p>
+
+        <div class="kpis" aria-label="핵심 성능 지표">
+          <div class="kpi">
+            <span>Baseline RMSE</span>
+            <strong>0.2417</strong>
+            <div class="mini-icon">
+              <svg viewBox="0 0 28 28" width="26" height="26" aria-hidden="true"><path d="M5 23V12M12 23V7M19 23V4M26 23H2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+          <div class="kpi highlight">
+            <span>Final RMSE</span>
+            <strong>0.2375</strong>
+            <div class="mini-icon">
+              <svg viewBox="0 0 28 28" width="26" height="26" aria-hidden="true"><path d="M4 22H25M6 18L12 12L17 15L24 6M20 6H24V10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="kpi">
+            <span>MAE</span>
+            <strong>0.1978</strong>
+            <div class="mini-icon">
+              <svg viewBox="0 0 28 28" width="26" height="26" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="2.3"/><path d="M14 3V8M14 20V25M3 14H8M20 14H25M14 11V14L17 16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-shell" aria-label="발표 슬라이드 미리보기">
+        <aside class="slide-rail" aria-label="발표 구성 요약">
+          <div class="rail-menu">
+            <div class="rail-item active"><i class="rail-icon"></i><span>개요</span></div>
+            <div class="rail-item"><i class="rail-icon"></i><span>문제 정의</span></div>
+            <div class="rail-item"><i class="rail-icon"></i><span>분석 과정</span></div>
+            <div class="rail-item"><i class="rail-icon"></i><span>모델링</span></div>
+            <div class="rail-item"><i class="rail-icon"></i><span>결과 해석</span></div>
+            <div class="rail-item"><i class="rail-icon"></i><span>결론</span></div>
+          </div>
+          <div class="rail-bottom">
+            <div>12 / 14</div>
+            <div class="rail-arrows" aria-hidden="true"><i>‹</i><i>›</i></div>
+          </div>
+        </aside>
+
+        <div class="preview">
+          <div class="dataset-card" aria-label="데이터셋 규모">
+            <span>데이터셋</span>
+            <div class="dataset-row"><em>Train</em><b>4,376</b></div>
+            <div class="dataset-row"><em>Test</em><b>1,755</b></div>
+          </div>
+
+          <h2>발표 슬라이드 미리보기</h2>
+          <div class="chart-card">
+            <div class="chart-title">모델 성능 비교 (RMSE)</div>
+            <div class="bar-chart" aria-label="모델 성능 비교 막대그래프">
+              <div class="axis"><span>0.30</span><span>0.25</span><span>0.20</span><span>0.15</span><span>0.10</span><span>0.05</span><span>0.00</span></div>
+              <div>
+                <div class="bar-wrap"><div class="bar dark" style="height:171px"><b>0.2417</b></div></div>
+                <div class="bar-label">Baseline<br />(Mean)</div>
+              </div>
+              <div>
+                <div class="bar-wrap"><div class="bar teal" style="height:168px"><b>0.2375</b></div></div>
+                <div class="bar-label">Final Model<br />(RF EV + Clip)</div>
+              </div>
+              <div>
+                <div class="bar-wrap"><div class="bar" style="height:176px"><b>0.2489</b></div></div>
+                <div class="bar-label">XGBoost</div>
+              </div>
+              <div>
+                <div class="bar-wrap"><div class="bar" style="height:175px"><b>0.2478</b></div></div>
+                <div class="bar-label">LightGBM</div>
+              </div>
+              <div>
+                <div class="bar-wrap"><div class="bar" style="height:177px"><b>0.2503</b></div></div>
+                <div class="bar-label">CatBoost</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-grid">
+            <div class="timeline-card">
+              <h3>분석 여정 타임라인</h3>
+              <div class="timeline" aria-label="분석 여정">
+                <div class="step"><i>01</i><span>문제<br />재정의</span></div>
+                <div class="step"><i>02</i><span>데이터<br />이해</span></div>
+                <div class="step"><i>03</i><span>기준선<br />검증</span></div>
+                <div class="step"><i>04</i><span>신호<br />진단</span></div>
+                <div class="step"><i>05</i><span>피처<br />엔지니어링</span></div>
+                <div class="step"><i>06</i><span>모델링<br />& 검증</span></div>
+                <div class="step current"><i>07</i><span>해석 &<br />인사이트</span></div>
+              </div>
+            </div>
+
+            <div class="company-card">
+              <h3>기업 예측 결과 예시</h3>
+              <div class="name-row">
+                <span>(주) 예시테크</span>
+                <a class="detail-btn" href="dashboard.html">상세 보기</a>
+              </div>
+              <div class="score-title">SuccessScore (유사도)</div>
+              <div class="score">0.73 <small>/ 1.00</small></div>
+              <div class="slider" aria-hidden="true"></div>
+              <div class="scale"><span>0</span><span>0.5</span><span>1.0</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="cta-band" id="summary" aria-label="주요 이동 버튼">
+      <a class="btn primary" href="capstone_final_presentation.html">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="6" width="22" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M9 19L13 15L17 17L23 11M12 27H20M16 23V27" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        분석 발표 보기
+        <span class="arrow">→</span>
+      </a>
+      <a class="btn secondary" href="dashboard.html">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="6" width="22" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 18L14 14L18 16L23 10M24 5V10H29" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        MVP 데모 보기
+        <span class="arrow">→</span>
+      </a>
+      <div class="warning">
+        <svg class="shield" viewBox="0 0 40 48" aria-hidden="true"><path d="M20 4L34 10V21C34 32 28 39 20 44C12 39 6 32 6 21V10L20 4Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M14 24L18 28L27 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p>본 프로젝트의 successScore는 실제 미래 성공확률이 아니라<br />학습 데이터 내 <b>성장기업 패턴 유사도</b>입니다.</p>
+      </div>
+    </section>
+
+    <section class="info-sections" aria-label="분석 요약">
+      <article class="info-card" id="project">
+        <span>PROJECT</span>
+        <h2>문제 재정의</h2>
+        <p>기업 성공확률 예측을 단정적 확률 문제가 아니라 성장기업 패턴과의 유사도를 해석하는 문제로 바꿨다.</p>
+      </article>
+      <article class="info-card" id="approach">
+        <span>APPROACH</span>
+        <h2>기준선과 신호 진단</h2>
+        <p>평균 baseline, permutation test, learning curve, adversarial validation으로 성능의 의미를 먼저 검증했다.</p>
+      </article>
+      <article class="info-card" id="insight">
+        <span>INSIGHT</span>
+        <h2>효율성 피처</h2>
+        <p>기업 규모 자체보다 고객당매출, 직원당매출, 기업가치대비투자금 같은 비율형 지표가 해석에 유용했다.</p>
+      </article>
+      <article class="info-card">
+        <span>RESULT</span>
+        <h2>해석 책임성</h2>
+        <p>점수와 함께 modelConfidence, dataReliability, risk flags를 제시해 과도한 성공확률 해석을 방지했다.</p>
+      </article>
+    </section>
+  </div>
+</body>
+</html>
+
