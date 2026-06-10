@@ -1,7 +1,7 @@
-window.EXTERNAL_INDUSTRY_BENCHMARKS = {
+﻿window.EXTERNAL_INDUSTRY_BENCHMARKS = {
   "meta": {
     "updatedAt": "2026-06-10",
-    "basis": "DACON test 기업은 익명 ID이므로 실제 공시 기업과 1:1 매칭하지 않고, 산업군 단위의 외부 공개자료 근거 레이어로만 사용한다.",
+    "basis": "test 기업은 익명 ID이므로 실제 공시 기업과 1:1 매칭하지 않고, 산업군 단위의 외부 공개자료 근거 레이어로만 사용한다.",
     "limitations": "아래 표는 모델 feature가 아니며 성공확률 예측 성능 계산에도 사용하지 않는다. OpenDART API Key 또는 KRX 다운로드 데이터가 연결되면 동일 구조에서 재무 지표 중앙값을 갱신할 수 있다.",
     "sources": [
       {
@@ -109,3 +109,4 @@ window.EXTERNAL_INDUSTRY_BENCHMARKS = {
     }
   ]
 };
+
